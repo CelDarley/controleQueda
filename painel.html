@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <title>SPEC - Sistema de Monitoramento ILPI</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <meta name="description" content="Sistema de Monitoramento ILPI"/>
+        <link href="css/thalamus.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+            /* Estilos gerais */
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f5f5f5;
+            }
+
+            /* Estilos para o menu lateral */
+            aside {
+                width: 250px;
+                background-color: #fff;
+                border-right: 1px solid #eee;
+                height: 100%;
+                position: fixed;
+                left: 0;
+                top: 60px;
+                overflow-y: auto;
+                transition: all 0.3s ease;
+                z-index: 10;
+            }
+
+            .esconde aside {
+                width: 60px;
+            }
+
+            /* Ajuste para o conteúdo principal não ficar embaixo do menu lateral */
+            main section {
+                margin-left: 250px; /* Mesmo valor da largura do aside */
+                transition: margin-left 0.3s ease;
+            }
+
+            main.esconde section {
+                margin-left: 60px; /* Mesmo valor da largura do aside quando escondido */
+            }
+
+            /* Estilos para o container de quartos */
+            .quartos-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 20px;
+                padding: 20px;
+            }
+
+            /* Estilos para os cards de quarto */
+            .quarto-card {
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                transition: transform 0.2s, box-shadow 0.2s;
+                position: relative;
+            }
+
+            .quarto-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            }
+
+            .quarto-header {
+                padding: 15px;
+                background-color: #4a6ee0;
+                color: white;
+                font-weight: 600;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .quarto-numero {
+                font-size: 1.2rem;
+            }
+
+            .quarto-tipo {
+                font-size: 0.8rem;
+                background-color: rgba(255, 255, 255, 0.2);
+                padding: 3px 8px;
+                border-radius: 12px;
+            }
+
+            .quarto-body {
+                padding: 15px;
+            }
+
+            .quarto-status {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+            }
+
+            .status-normal {
+                background-color: #4CAF50;
+            }
+
+            .status-atencao {
+                background-color: #FFC107;
+            }
+
+            .status-alerta {
+                background-color: #F44336;
+                animation: piscar 1s infinite;
+            }
+
+            @keyframes piscar {
+                0% { opacity: 1; }
+                50% { opacity: 0.5; }
+                100% { opacity: 1; }
+            }
+
+            /* Estilos para a lista de pacientes */
+            .pacientes-lista {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .paciente-item {
+                display: flex;
+                align-items: center;
+                padding: 10px 0;
+                border-bottom: 1px solid #eee;
+            }
+
+            .paciente-item:last-child {
+                border-bottom: none;
+            }
+
+            .paciente-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background-color: #e0e0e0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-right: 12px;
+                font-size: 1.2rem;
+                color: #555;
+            }
+
+            .paciente-info {
+                flex: 1;
+            }
+
+            .paciente-nome {
+                font-weight: 500;
+                margin-bottom: 3px;
+            }
+
+            .paciente-detalhes {
+                font-size: 0.8rem;
+                color: #666;
+                display: flex;
+                align-items: center;
+            }
+
+            .paciente-classe {
+                margin-left: 5px;
+                display: flex;
+                align-items: center;
+            }
+
+            .paciente-classe i {
+                margin-right: 5px;
+                font-size: 1rem;
+            }
+
+            /* Estilos para alertas */
+            .alerta-container {
+                margin-top: 10px;
+                padding-top: 10px;
+                border-top: 1px dashed #eee;
+            }
+
+            .alerta-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 8px;
+                padding: 8px;
+                border-radius: 4px;
+                font-size: 0.85rem;
+            }
+
+            .alerta-baixo {
+                background-color: rgba(76, 175, 80, 0.1);
+                border-left: 3px solid #4CAF50;
+            }
+
+            .alerta-medio {
+                background-color: rgba(255, 193, 7, 0.1);
+                border-left: 3px solid #FFC107;
+            }
+
+            .alerta-alto {
+                background-color: rgba(244, 67, 54, 0.1);
+                border-left: 3px solid #F44336;
+            }
+
+            .alerta-icone {
+                margin-right: 8px;
+                font-size: 1rem;
+            }
+
+            .alerta-texto {
+                flex: 1;
+            }
+
+            .alerta-tempo {
+                font-size: 0.75rem;
+                color: #777;
+            }
+
+            /* Estilos para filtros */
+            .filtros-container {
+                display: flex;
+                align-items: center;
+                padding: 15px 20px;
+                background-color: #fff;
+                border-bottom: 1px solid #eee;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .filtro-grupo {
+                display: flex;
+                align-items: center;
+                margin-right: 15px;
+            }
+
+            .filtro-label {
+                font-size: 0.9rem;
+                margin-right: 8px;
+                font-weight: 500;
+                color: #555;
+            }
+
+            .filtro-select {
+                padding: 6px 10px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 0.9rem;
+            }
+
+            .filtro-checkbox {
+                display: flex;
+                align-items: center;
+            }
+
+            .filtro-checkbox input {
+                margin-right: 5px;
+            }
+
+            /* Estilos para estatísticas rápidas */
+            .stats-container {
+                display: flex;
+                gap: 15px;
+                padding: 15px 20px;
+                background-color: #fff;
+                border-bottom: 1px solid #eee;
+                flex-wrap: wrap;
+            }
+
+            .stat-item {
+                background-color: #f9f9f9;
+                border-radius: 6px;
+                padding: 10px 15px;
+                min-width: 120px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            }
+
+            .stat-valor {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 5px;
+            }
+
+            .stat-label {
+                font-size: 0.8rem;
+                color: #666;
+            }
+
+            .stat-normal .stat-valor {
+                color: #4CAF50;
+            }
+
+            .stat-atencao .stat-valor {
+                color: #FFC107;
+            }
+
+            .stat-alerta .stat-valor {
+                color: #F44336;
+            }
+
+            /* Estilos para ícones de classe de hóspede */
+            .classe-icon {
+                font-size: 1rem;
+                margin-right: 5px;
+            }
+
+            .classe-cadeirante {
+                color: #2196F3;
+            }
+
+            .classe-acamado {
+                color: #9C27B0;
+            }
+
+            .classe-andador {
+                color: #FF9800;
+            }
+
+            .classe-bengala {
+                color: #795548;
+            }
+
+            .classe-independente {
+                color: #4CAF50;
+            }
+
+            /* Estilos para o contador de pacientes no quarto */
+            .pacientes-contador {
+                background-color: rgba(0, 0, 0, 0.1);
+                padding: 3px 8px;
+                border-radius: 12px;
+                font-size: 0.8rem;
+                margin-left: 10px;
+            }
+
+            /* Estilos para o botão de visualizar câmera */
+            .btn-camera {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background-color: rgba(0, 0, 0, 0.1);
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                cursor: pointer;
+                transition: background-color 0.2s;
+            }
+
+            .btn-camera:hover {
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+
+            /* Estilos para o indicador de ocupação */
+            .ocupacao-indicador {
+                display: flex;
+                margin-top: 10px;
+                height: 8px;
+                border-radius: 4px;
+                overflow: hidden;
+                background-color: #f0f0f0;
+            }
+
+            .ocupacao-preenchido {
+                height: 100%;
+                background-color: #4a6ee0;
+            }
+
+            /* Estilos para o rodapé do card */
+            .quarto-footer {
+                padding: 10px 15px;
+                background-color: #f9f9f9;
+                border-top: 1px solid #eee;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 0.85rem;
+                color: #666;
+            }
+
+            .quarto-ultima-atualizacao {
+                font-style: italic;
+            }
+
+            .quarto-acoes a {
+                margin-left: 10px;
+                color: #4a6ee0;
+                text-decoration: none;
+            }
+
+            .quarto-acoes a:hover {
+                text-decoration: underline;
+            }
+
+            /* Ajuste responsivo para telas menores */
+            @media (max-width: 768px) {
+                main section {
+                    margin-left: 60px;
+                }
+                
+                .quartos-container {
+                    grid-template-columns: 1fr;
+                }
+                
+                .stats-container {
+                    flex-direction: column;
+                }
+                
+                .filtros-container {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                
+                .filtro-grupo {
+                    width: 100%;
+                    margin-bottom: 10px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="linha">
+                <div class="coluna">
+                    <nav class="jm jm-menu nav-maior none" id="menu">
+                        <div class="separador">
+                            <a href="configuracoes.html">Configurações</a>
+                            <a href="hospedes.html">Gestão de Hóspedes</a>
+                            <a href="condicoes-saude.html">Condições de Saúde</a>
+                            <a href="monitoramento.html" class="ativo">Monitoramento</a>
+                            <a href="#">Sair</a>
+                        </div>
+                    </nav>
+                    <a href="inicial.html" class="logo logo-menor">Thalamus</a>
+                    <a href="#" class="icone-avancar negrito com-texto" onclick="document.getElementById('menu').classList.toggle('none');this.classList.toggle('ativo');return false">Monitoramento de Quartos</a>
+                </div>
+                <div class="coluna direita">
+                    <a href="#" class="avatar" onclick="document.getElementById('usuario').classList.toggle('none');this.classList.toggle('ativo');return false" title="Usuário">
+                        <img src="img/avatar.png"/>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <main id="main">  
+            <aside>
+                <div class="titulo margem efeito">
+                    <div class="m-icone"><a href="#" class="icone-menu" title="Menu" onclick="document.getElementById('main').classList.toggle('esconde');return false"></a></div>
+                </div>
+                <div class="separador margem">
+                    <div class="m-icone">
+                        <a href="javascript:abaMenu('Monitoramento')" class="icone-compras ativo" title="Monitoramento" id="Monitoramento"></a>
+                        <a href="javascript:abaMenu('Configuracoes')" class="icone-gestao" title="Configurações" id="Configuracoes"></a>
+                        <a href="javascript:abaMenu('Relatorios')" class="icone-alvo" title="Relatórios" id="Relatorios"></a>
+                    </div>
+                </div>
+                <nav id="menuMonitoramento" class="nav-maior separador">
+                    <a href="eventos.html">Monitoramento e alerta</a>
+                    <a href="quartos.html" class="ativo">Visualização de Quartos</a>
+                    <a href="mapa.html">Mapa da ILPI</a>
+                </nav>
+                <nav id="menuConfiguracoes" class="nav-maior separador none">
+                    <a href="cameraQuarto.html">Câmeras e Quartos</a>
+                    <a href="tipo-eventos.html">Tipo de evento</a>
+                    <a href="tipo-alerta.html">Tipo de Alertas</a>
+                    <a href="config-evento-alertas.html">Configurações de eventos/alertas</a>
+                    <a href="hospedes.html">Gestão de Hóspedes</a>
+                    <a href="condicoes-saude.html">Condições de Saúde</a>
+                    <a href="classeHospede.html">Classe de hóspede</a>
+                </nav>
+                <nav id="menuRelatorios" class="nav-maior separador none">
+                    <a href="relatorio-eventos.html">Relatório de Eventos</a>
+                    <a href="relatorio-alertas.html">Relatório de Alertas</a>
+                    <a href="estatisticas.html">Estatísticas</a>
+                </nav>
+            </aside>
+            <section>
+                <div class="titulo">
+                    <div class="margem container">
+                        <h2>Visualização de Quartos</h2> 
+                    </div>
+                </div>
+                
+                <!-- Estatísticas rápidas -->
+                <div class="stats-container">
+                    <div class="stat-item stat-normal">
+                        <div class="stat-valor">12</div>
+                        <div class="stat-label">Quartos normais</div>
+                    </div>
+                    <div class="stat-item stat-atencao">
+                        <div class="stat-valor">3</div>
+                        <div class="stat-label">Quartos em atenção</div>
+                    </div>
+                    <div class="stat-item stat-alerta">
+                        <div class="stat-valor">1</div>
+                        <div class="stat-label">Quartos em alerta</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-valor">28</div>
+                        <div class="stat-label">Hóspedes monitorados</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-valor">85%</div>
+                        <div class="stat-label">Ocupação total</div>
+                    </div>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="filtros-container">
+                    <div class="filtro-grupo">
+                        <span class="filtro-label">Andar:</span>
+                        <select class="filtro-select" id="filtroAndar">
+                            <option value="todos">Todos</option>
+                            <option value="1">1º Andar</option>
+                            <option value="2">2º Andar</option>
+                            <option value="3">3º Andar</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <span class="filtro-label">Status:</span>
+                        <select class="filtro-select" id="filtroStatus">
+                            <option value="todos">Todos</option>
+                            <option value="normal">Normal</option>
+                            <option value="atencao">Atenção</option>
+                            <option value="alerta">Alerta</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <span class="filtro-label">Tipo:</span>
+                        <select class="filtro-select" id="filtroTipo">
+                            <option value="todos">Todos</option>
+                            <option value="individual">Individual</option>
+                            <option value="duplo">Duplo</option>
+                            <option value="triplo">Triplo</option>
+                            <option value="quadruplo">Quádruplo</option>
+                        </select>
+                    </div>
+                    <div class="filtro-checkbox">
+                        <input type="checkbox" id="filtroOcupados" checked>
+                        <label for="filtroOcupados">Apenas ocupados</label>
+                    </div>
+                </div>
+                
+                <!-- Container de quartos -->
+                <div class="quartos-container" id="quartosContainer">
+                    <!-- Os cards de quartos serão inseridos aqui via JavaScript -->
+                </div>
+            </section>
+        </main>
+
+        <script>
+            // Dados dos quartos (simulando um banco de dados)
+            const quartos = [
+                {
+                    id: "Q101",
+                    numero: "101",
+                    andar: 1,
+                    tipo: "duplo",
+                    capacidade: 2,
+                    status: "normal",
+                    ultimaAtualizacao: "2023-08-15T14:30:00",
+                    pacientes: [
+                        {
+                            id: "H001",
+                            nome: "Ana Carolina Silva",
+                            idade: 78,
+                            classe: "cadeirante",
+                            alertas: []
+                        },
+                        {
+                            id: "H002",
+                            nome: "José Roberto Oliveira",
+                            idade: 82,
+                            classe: "bengala",
+                            alertas: [
+                                {
+                                    tipo: "baixo",
+                                    mensagem: "Padrão de sono alterado",
+                                    tempo: "2h atrás"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "Q102",
+                    numero: "102",
+                    andar: 1,
+                    tipo: "individual",
+                    capacidade: 1,
+                    status: "atencao",
+                    ultimaAtualizacao: "2023-08-15T14:45:00",
+                    pacientes: [
+                        {
+                            id: "H003",
+                            nome: "Maria Aparecida Santos",
+                            idade: 85,
+                            classe: "acamado",
+                            alertas: [
+                                {
+                                    tipo: "medio",
+                                    mensagem: "Possível desidratação",
+                                    tempo: "30min atrás"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "Q103",
+                    numero: "103",
+                    andar: 1,
+                    tipo: "triplo",
+                    capacidade: 3,
+                    status: "normal",
+                    ultimaAtualizacao: "2023-08-15T14:20:00",
+                    pacientes: [
+                        {
+                            id: "H004",
+                            nome: "Antônio Carlos Ferreira",
+                            idade: 75,
+                            classe: "andador",
+                            alertas: []
+                        },
+                        {
+                            id: "H005",
+                            nome: "Lúcia Helena Mendes",
+                            idade: 70,
+                            classe: "independente",
+                            alertas: []
+                        },
+                        {
+                            id: "H006",
+                            nome: "Roberto Almeida Costa",
+                            idade: 68,
+                            classe: "independente",
+                            alertas: []
+                        }
+                    ]
+                },
+                {
+                    id: "Q201",
+                    numero: "201",
+                    andar: 2,
+                    tipo: "duplo",
+                    capacidade: 2,
+                    status: "alerta",
+                    ultimaAtualizacao: "2023-08-15T14:55:00",
+                    pacientes: [
+                        {
+                            id: "H007",
+                            nome: "Carlos Eduardo Santos",
+                            idade: 88,
+                            classe: "cadeirante",
+                            alertas: [
+                                {
+                                    tipo: "alto",
+                                    mensagem: "Possível queda detectada",
+                                    tempo: "5min atrás"
+                                }
+                            ]
+                        },
+                        {
+                            id: "H008",
+                            nome: "Mariana Oliveira Lima",
+                            idade: 79,
+                            classe: "bengala",
+                            alertas: []
+                        }
+                    ]
+                },
+                {
+                    id: "Q202",
+                    numero: "202",
+                    andar: 2,
+                    tipo: "individual",
+                    capacidade: 1,
+                    status: "normal",
+                    ultimaAtualizacao: "2023-08-15T14:10:00",
+                    pacientes: [
+                        {
+                            id: "H009",
+                            nome: "Paulo Roberto Silva",
+                            idade: 72,
+                            classe: "independente",
+                            alertas: []
+                        }
+                    ]
+                },
+                {
+                    id: "Q203",
+                    numero: "203",
+                    andar: 2,
+                    tipo: "duplo",
+                    capacidade: 2,
+                    status: "atencao",
+                    ultimaAtualizacao: "2023-08-15T14:40:00",
+                    pacientes: [
+                        {
+                            id: "H010",
+                            nome: "Joana Pereira Santos",
+                            idade: 81,
+                            classe: "acamado",
+                            alertas: [
+                                {
+                                    tipo: "medio",
+                                    mensagem: "Inatividade prolongada",
+                                    tempo: "45min atrás"
+                                }
+                            ]
+                        },
+                        {
+                            id: "H011",
+                            nome: "Francisco Oliveira",
+                            idade: 84,
+                            classe: "andador",
+                            alertas: []
+                        }
+                    ]
+                },
+                {
+                    id: "Q301",
+                    numero: "301",
+                    andar: 3,
+                    tipo: "quadruplo",
+                    capacidade: 4,
+                    status: "normal",
+                    ultimaAtualizacao: "2023-08-15T14:15:00",
+                    pacientes: [
+                        {
+                            id: "H012",
+                            nome: "Antônia Maria Costa",
+                            idade: 75,
+                            classe: "bengala",
+                            alertas: []
+                        },
+                        {
+                            id: "H013",
+                            nome: "José Carlos Ferreira",
+                            idade: 80,
+                            classe: "cadeirante",
+                            alertas: []
+                        },
+                        {
+                            id: "H014",
+                            nome: "Maria do Carmo Souza",
+                            idade: 77,
+                            classe: "independente",
+                            alertas: []
+                        }
+                    ]
+                },
+                {
+                    id: "Q302",
+                    numero: "302",
+                    andar: 3,
+                    tipo: "duplo",
+                    capacidade: 2,
+                    status: "atencao",
+                    ultimaAtualizacao: "2023-08-15T14:50:00",
+                    pacientes: [
+                        {
+                            id: "H015",
+                            nome: "Pedro Henrique Lima",
+                            idade: 85,
+                            classe: "acamado",
+                            alertas: [
+                                {
+                                    tipo: "medio",
+                                    mensagem: "Alteração de sinais vitais",
+                                    tempo: "20min atrás"
+                                }
+                            ]
+                        },
+                        {
+                            id: "H016",
+                            nome: "Ana Beatriz Oliveira",
+                            idade: 73,
+                            classe: "andador",
+                            alertas: []
+                        }
+                    ]
+                }
+            ];
+
+            // Função para controlar o menu lateral
+            function abaMenu(aba) {
+                // Primeiro, remova todas as classes ativas dos ícones
+                document.getElementById('Monitoramento').classList.remove('ativo');
+                document.getElementById('Configuracoes').classList.remove('ativo');
+                document.getElementById('Relatorios').classList.remove('ativo');
+              
+                // Em seguida, esconda todos os menus
+                document.getElementById('menuMonitoramento').classList.add('none');
+                document.getElementById('menuConfiguracoes').classList.add('none');
+                document.getElementById('menuRelatorios').classList.add('none');
+              
+                // Por fim, ative o ícone e mostre o menu correspondente
+                document.getElementById(aba).classList.add('ativo');
+                document.getElementById('menu' + aba).classList.remove('none');
+              
+                // Salvar o estado do menu no localStorage
+                localStorage.setItem('menuAtivo', aba);
+            }
+            
+            // Função para obter o ícone da classe do hóspede
+            function getClasseIcon(classe) {
+                const icons = {
+                    'cadeirante': '<i class="fas fa-wheelchair classe-icon classe-cadeirante"></i>',
+                    'acamado': '<i class="fas fa-bed classe-icon classe-acamado"></i>',
+                    'andador': '<i class="fas fa-walking classe-icon classe-andador"></i>',
+                    'bengala': '<i class="fas fa-cane classe-icon classe-bengala"></i>',
+                    'independente': '<i class="fas fa-user classe-icon classe-independente"></i>'
+                };
+                
+                return icons[classe] || '<i class="fas fa-user classe-icon"></i>';
+            }
+            
+            // Função para obter o texto da classe do hóspede
+            function getClasseTexto(classe) {
+                const textos = {
+                    'cadeirante': 'Cadeirante',
+                    'acamado': 'Acamado',
+                    'andador': 'Usuário de Andador',
+                    'bengala': 'Usuário de Bengala',
+                    'independente': 'Independente'
+                };
+                
+                return textos[classe] || classe;
+            }
+            
+            // Função para obter o texto do tipo de quarto
+            function getTipoQuartoTexto(tipo) {
+                const tipos = {
+                    'individual': 'Individual',
+                    'duplo': 'Duplo',
+                    'triplo': 'Triplo',
+                    'quadruplo': 'Quádruplo'
+                };
+                
+                return tipos[tipo] || tipo;
+            }
+            
+            // Função para renderizar os cards de quartos
+            function renderizarQuartos(filtros = {}) {
+                const container = document.getElementById('quartosContainer');
+                container.innerHTML = '';
+                
+                // Aplicar filtros
+                let quartosFiltrados = [...quartos];
+                
+                if (filtros.andar && filtros.andar !== 'todos') {
+                    quartosFiltrados = quartosFiltrados.filter(q => q.andar === parseInt(filtros.andar));
+                }
+                
+                if (filtros.status && filtros.status !== 'todos') {
+                    quartosFiltrados = quartosFiltrados.filter(q => q.status === filtros.status);
+                }
+                
+                if (filtros.tipo && filtros.tipo !== 'todos') {
+                    quartosFiltrados = quartosFiltrados.filter(q => q.tipo === filtros.tipo);
+                }
+                
+                if (filtros.apenasOcupados) {
+                    quartosFiltrados = quartosFiltrados.filter(q => q.pacientes.length > 0);
+                }
+                
+                // Renderizar cada quarto
+                quartosFiltrados.forEach(quarto => {
+                    // Criar elemento do card
+                    const card = document.createElement('div');
+                    card.className = 'quarto-card';
+                    
+                    // Calcular total de alertas
+                    let totalAlertas = 0;
+                    let alertaAlto = false;
+                    let alertaMedio = false;
+                    
+                    quarto.pacientes.forEach(paciente => {
+                        totalAlertas += paciente.alertas.length;
+                        paciente.alertas.forEach(alerta => {
+                            if (alerta.tipo === 'alto') alertaAlto = true;
+                            if (alerta.tipo === 'medio') alertaMedio = true;
+                        });
+                    });
+                    
+                    // Criar HTML para o cabeçalho do quarto
+                    let headerHTML = `
+                        <div class="quarto-header">
+                            <div>
+                                <span class="quarto-numero">Quarto ${quarto.numero}</span>
+                                <span class="quarto-tipo">${getTipoQuartoTexto(quarto.tipo)}</span>
+                                <span class="pacientes-contador">${quarto.pacientes.length}/${quarto.capacidade}</span>
+                            </div>
+                            <a href="#" class="btn-camera" title="Visualizar câmera">
+                                <i class="fas fa-video"></i>
+                            </a>
+                        </div>
+                    `;
+                    
+                    // Criar HTML para o corpo do card
+                    let bodyHTML = '<div class="quarto-body">';
+                    
+                    // Adicionar indicador de status
+                    let statusClass = '';
+                    if (quarto.status === 'normal') statusClass = 'status-normal';
+                    else if (quarto.status === 'atencao') statusClass = 'status-atencao';
+                    else if (quarto.status === 'alerta') statusClass = 'status-alerta';
+                    
+                    bodyHTML += `<div class="quarto-status ${statusClass}"></div>`;
+                    
+                    // Adicionar lista de pacientes
+                    bodyHTML += '<ul class="pacientes-lista">';
+                    
+                    quarto.pacientes.forEach(paciente => {
+                        bodyHTML += `
+                            <li class="paciente-item">
+                                <div class="paciente-avatar">
+                                    ${paciente.nome.charAt(0)}
+                                </div>
+                                <div class="paciente-info">
+                                    <div class="paciente-nome">${paciente.nome}</div>
+                                    <div class="paciente-detalhes">
+                                        ${paciente.idade} anos
+                                        <span class="paciente-classe">
+                                            ${getClasseIcon(paciente.classe)} ${getClasseTexto(paciente.classe)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </li>
+                        `;
+                    });
+                    
+                    bodyHTML += '</ul>';
+                    
+                    // Adicionar indicador de ocupação
+                    const ocupacaoPercentual = (quarto.pacientes.length / quarto.capacidade) * 100;
+                    bodyHTML += `
+                        <div class="ocupacao-indicador">
+                            <div class="ocupacao-preenchido" style="width: ${ocupacaoPercentual}%"></div>
+                        </div>
+                    `;
+                    
+                    // Adicionar alertas se existirem
+                    if (totalAlertas > 0) {
+                        bodyHTML += '<div class="alerta-container">';
+                        
+                        quarto.pacientes.forEach(paciente => {
+                            paciente.alertas.forEach(alerta => {
+                                let alertaIcone = '';
+                                if (alerta.tipo === 'baixo') alertaIcone = '<i class="fas fa-info-circle alerta-icone" style="color: #4CAF50;"></i>';
+                                else if (alerta.tipo === 'medio') alertaIcone = '<i class="fas fa-exclamation-circle alerta-icone" style="color: #FFC107;"></i>';
+                                else if (alerta.tipo === 'alto') alertaIcone = '<i class="fas fa-exclamation-triangle alerta-icone" style="color: #F44336;"></i>';
+                                
+                                bodyHTML += `
+                                    <div class="alerta-item alerta-${alerta.tipo}">
+                                        ${alertaIcone}
+                                        <div class="alerta-texto">
+                                            <strong>${paciente.nome}:</strong> ${alerta.mensagem}
+                                        </div>
+                                        <div class="alerta-tempo">${alerta.tempo}</div>
+                                    </div>
+                                `;
+                            });
+                        });
+                        
+                        bodyHTML += '</div>';
+                    }
+                    
+                    bodyHTML += '</div>'; // Fechando quarto-body
+                    
+                    // Criar HTML para o rodapé do card
+                    const dataAtualizacao = new Date(quarto.ultimaAtualizacao);
+                    const dataFormatada = dataAtualizacao.toLocaleString('pt-BR');
+                    
+                    let footerHTML = `
+                        <div class="quarto-footer">
+                            <div class="quarto-ultima-atualizacao">
+                                Atualizado: ${dataFormatada}
+                            </div>
+                            <div class="quarto-acoes">
+                                <a href="#" onclick="visualizarDetalhes('${quarto.id}')">Detalhes</a>
+                                <a href="#" onclick="visualizarHistorico('${quarto.id}')">Histórico</a>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Montar o card completo
+                    card.innerHTML = headerHTML + bodyHTML + footerHTML;
+                    
+                    // Adicionar o card ao container
+                    container.appendChild(card);
+                });
+                
+                // Verificar se não há quartos para exibir
+                if (quartosFiltrados.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Nenhum quarto encontrado com os filtros selecionados.</div>';
+                }
+            }
+            
+            // Função para visualizar detalhes do quarto
+            function visualizarDetalhes(quartoId) {
+                alert(`Visualizando detalhes do quarto ${quartoId}`);
+                // Aqui você implementaria a lógica para abrir uma modal ou redirecionar para a página de detalhes
+            }
+            
+            // Função para visualizar histórico do quarto
+            function visualizarHistorico(quartoId) {
+                alert(`Visualizando histórico do quarto ${quartoId}`);
+                // Aqui você implementaria a lógica para abrir uma modal ou redirecionar para a página de histórico
+            }
+            
+            // Função para aplicar filtros
+            function aplicarFiltros() {
+                const andar = document.getElementById('filtroAndar').value;
+                const status = document.getElementById('filtroStatus').value;
+                const tipo = document.getElementById('filtroTipo').value;
+                const apenasOcupados = document.getElementById('filtroOcupados').checked;
+                
+                renderizarQuartos({
+                    andar,
+                    status,
+                    tipo,
+                    apenasOcupados
+                });
+            }
+            
+            // Inicializar a página
+            document.addEventListener('DOMContentLoaded', function() {
+                // Renderizar quartos inicialmente
+                renderizarQuartos({
+                    apenasOcupados: true
+                });
+                
+                // Adicionar eventos aos filtros
+                document.getElementById('filtroAndar').addEventListener('change', aplicarFiltros);
+                document.getElementById('filtroStatus').addEventListener('change', aplicarFiltros);
+                document.getElementById('filtroTipo').addEventListener('change', aplicarFiltros);
+                document.getElementById('filtroOcupados').addEventListener('change', aplicarFiltros);
+                
+                // Recuperar o estado do menu do localStorage
+                const menuAtivo = localStorage.getItem('menuAtivo') || 'Monitoramento';
+                
+                // Aplicar o estado do menu
+                document.getElementById('Monitoramento').classList.remove('ativo');
+                document.getElementById('Configuracoes').classList.remove('ativo');
+                document.getElementById('Relatorios').classList.remove('ativo');
+
+                document.getElementById('menuMonitoramento').classList.add('none');
+                document.getElementById('menuConfiguracoes').classList.add('none');
+                document.getElementById('menuRelatorios').classList.add('none');
+
+                document.getElementById(menuAtivo).classList.add('ativo');
+                document.getElementById('menu' + menuAtivo).classList.remove('none');
+            });
+            
+            // Função para atualizar dados em tempo real (simulação)
+            function simularAtualizacaoTempoReal() {
+                // Esta função simula atualizações em tempo real que viriam de um servidor
+                // Em um ambiente real, você usaria WebSockets ou polling para obter atualizações
+                
+                setInterval(() => {
+                    // Simular uma chance de 20% de atualizar um quarto aleatório
+                    if (Math.random() < 0.2) {
+                        const indiceAleatorio = Math.floor(Math.random() * quartos.length);
+                        const quarto = quartos[indiceAleatorio];
+                        
+                        // Atualizar timestamp
+                        quarto.ultimaAtualizacao = new Date().toISOString();
+                        
+                        // Chance de 30% de mudar o status do quarto
+                        if (Math.random() < 0.3) {
+                            const statusPossiveis = ['normal', 'atencao', 'alerta'];
+                            const novoStatus = statusPossiveis[Math.floor(Math.random() * statusPossiveis.length)];
+                            quarto.status = novoStatus;
+                        }
+                        
+                        // Chance de 40% de adicionar ou remover um alerta para um paciente aleatório
+                        if (Math.random() < 0.4 && quarto.pacientes.length > 0) {
+                            const indicePaciente = Math.floor(Math.random() * quarto.pacientes.length);
+                            const paciente = quarto.pacientes[indicePaciente];
+                            
+                            if (paciente.alertas.length > 0 && Math.random() < 0.5) {
+                                // Remover um alerta
+                                paciente.alertas.pop();
+                            } else {
+                                // Adicionar um alerta
+                                const tiposAlerta = ['baixo', 'medio', 'alto'];
+                                const mensagensAlerta = [
+                                    'Padrão de sono alterado',
+                                    'Possível desidratação',
+                                    'Inatividade prolongada',
+                                    'Alteração de sinais vitais',
+                                    'Possível queda detectada',
+                                    'Comportamento incomum',
+                                    'Saída do quarto'
+                                ];
+                                
+                                const novoAlerta = {
+                                    tipo: tiposAlerta[Math.floor(Math.random() * tiposAlerta.length)],
+                                    mensagem: mensagensAlerta[Math.floor(Math.random() * mensagensAlerta.length)],
+                                    tempo: 'agora'
+                                };
+                                
+                                paciente.alertas.push(novoAlerta);
+                            }
+                        }
+                        
+                        // Recarregar a visualização com os filtros atuais
+                        aplicarFiltros();
+                    }
+                }, 10000); // Atualizar a cada 10 segundos
+            }
+            
+            // Iniciar simulação de atualizações em tempo real
+            simularAtualizacaoTempoReal();
+        </script>
+    </body>
+</html>

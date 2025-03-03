@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <title>SPEC - Sistema de Monitoramento ILPI</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <meta name="description" content="Sistema de Monitoramento ILPI"/>
+        <link href="css/thalamus.css" rel="stylesheet" type="text/css"/>
+        <style>
+            /* Estilos gerais */
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Estilos da tabela */
+            .tabela {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 1rem;
+                background-color: #fff;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+
+            .tabela thead th {
+                background-color: #f8f9fa;
+                font-weight: 600;
+                text-align: left;
+                padding: 1rem;
+                border-bottom: 2px solid #dee2e6;
+            }
+
+            .tabela td {
+                vertical-align: middle;
+                padding: 0.75rem;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+            /* Estilos para chips e contadores */
+            .chip {
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 0.75rem;
+                margin-left: 8px;
+                font-weight: 500;
+            }
+
+            .bg-ok {
+                background-color: #4CAF50;
+                color: white;
+            }
+
+            .bg-cinza {
+                background-color: #f0f0f0;
+                color: #333;
+            }
+
+            .bg-ausente {
+                background-color: #FFA726;
+                color: white;
+            }
+
+            .contador {
+                min-width: 24px;
+                text-align: center;
+                margin: 0;
+            }
+
+            /* Estilos para elementos clicáveis */
+            .clicavel {
+                cursor: pointer;
+                transition: background-color 0.2s;
+            }
+
+            .clicavel:hover {
+                background-color: #f5f5f5;
+            }
+
+            /* Estilos para textos e fontes */
+            .fonte-menor {
+                font-size: 0.8rem;
+                color: #666;
+                display: block;
+                margin-top: 2px;
+            }
+
+            /* Estilos para o menu lateral */
+            aside {
+                width: 250px;
+                background-color: #fff;
+                border-right: 1px solid #eee;
+                height: 100%;
+                position: fixed;
+                left: 0;
+                top: 60px;
+                overflow-y: auto;
+                transition: all 0.3s ease;
+            }
+
+            .esconde aside {
+                width: 60px;
+            }
+
+            /* Estilos para paginação */
+            .paginacao {
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+
+            .paginacao a {
+                padding: 0.5rem 1rem;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+                color: #4a6ee0;
+                text-decoration: none;
+                transition: all 0.2s;
+            }
+
+            .paginacao a.ativo {
+                background-color: #4a6ee0;
+                color: white;
+                border-color: #4a6ee0;
+            }
+
+            .paginacao a:hover:not(.ativo) {
+                background-color: #f8f9fa;
+            }
+
+            /* Estilos para pesquisa */
+            .pesquisa {
+                display: flex;
+                align-items: center;
+                background-color: #f8f9fa;
+                border-radius: 4px;
+                padding: 0.5rem;
+            }
+
+            .pesquisa input {
+                border: none;
+                background: none;
+                padding: 0.5rem;
+                width: 200px;
+                outline: none;
+            }
+
+            /* Estilos para ícones */
+            .icone-pesquisa {
+                width: 24px;
+                height: 24px;
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234a6ee0"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>');
+                background-repeat: no-repeat;
+                background-position: center;
+            }
+
+            .icone-adicionar-header {
+                display: inline-block;
+                width: 32px;
+                height: 32px;
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%234a6ee0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>');
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 24px 24px;
+                cursor: pointer;
+                border: none;
+                outline: none;
+                transition: background-color 0.3s ease;
+            }
+
+            .icone-adicionar-header:hover {
+                background-color: #f0f5ff;
+                border-radius: 4px;
+            }
+            
+            /* Estilos para status */
+            .status-ativo {
+                background-color: #4CAF50;
+                color: white;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 0.8rem;
+            }
+            
+            .status-inativo {
+                background-color: #F44336;
+                color: white;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 0.8rem;
+            }
+            
+            /* Estilos para formulário */
+            .form-group {
+                margin-bottom: 1rem;
+            }
+            
+            .form-group label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+            }
+            
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 0.5rem;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 1rem;
+            }
+            
+            .grid-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            
+            .btn-primario {
+                background-color: #4a6ee0;
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 1rem;
+            }
+            
+            .btn-secundario {
+                background-color: #f8f9fa;
+                color: #333;
+                border: 1px solid #ddd;
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 1rem;
+                margin-right: 0.5rem;
+            }
+            
+            /* Estilos para edição in-line */
+            .editable {
+                cursor: pointer;
+                padding: 0.5rem;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+            }
+
+            .editable:hover {
+                background-color: #f5f5f5;
+            }
+
+            .editable-input {
+                width: 100%;
+                padding: 0.5rem;
+                border: 1px solid #4a6ee0;
+                border-radius: 4px;
+                font-size: 1rem;
+                box-sizing: border-box;
+            }
+
+            .editable-select {
+                width: 100%;
+                padding: 0.5rem;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 1rem;
+                background-color: white;
+            }
+            
+            /* Estilos para ícones de ação */
+            .acoes {
+                white-space: nowrap;
+                text-align: center;
+                min-width: 80px;
+                padding: 0 10px;
+            }
+
+            .icone-salvar,
+            .icone-excluir,
+            .icone-adicionar {
+                display: inline-block;
+                margin: 0 5px;
+                font-size: 18px;
+                text-decoration: none;
+                vertical-align: middle;
+            }
+
+            .acoes a:first-child {
+                margin-left: 8px;
+            }
+
+            .acoes a:last-child {
+                margin-right: 8px;
+            }
+
+            .icone-salvar:hover,
+            .icone-adicionar:hover {
+                color: #4a6ee0;
+                transform: scale(1.2);
+                transition: transform 0.2s;
+            }
+
+            .icone-excluir:hover {
+                color: #F44336;
+                transform: scale(1.2);
+                transition: transform 0.2s;
+            }
+            
+            /* Estilos para tags de mobilidade */
+            .tag-mobilidade {
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 0.8rem;
+                margin-right: 5px;
+                margin-bottom: 5px;
+            }
+            
+            .tag-alta {
+                background-color: #4CAF50;
+                color: white;
+            }
+            
+            .tag-media {
+                background-color: #FFC107;
+                color: black;
+            }
+            
+            .tag-baixa {
+                background-color: #F44336;
+                color: white;
+            }
+            
+            .tag-nenhuma {
+                background-color: #9E9E9E;
+                color: white;
+            }
+            
+            /* Estilos para checkbox */
+            .checkbox-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            
+            .checkbox-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 8px;
+            }
+            
+            .checkbox-item input[type="checkbox"] {
+                width: auto;
+                margin-right: 8px;
+            }
+            
+            /* Coluna de tipo mais larga */
+            .tabela th:nth-child(3), 
+            .tabela td:nth-child(3) {
+                min-width: 150px;
+                width: 15%;
+            }
+            
+            /* Correção para o problema de posicionamento e rolagem na modal */
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: none; /* Inicialmente escondida */
+                justify-content: center;
+                align-items: flex-start; /* Alinha ao topo em vez de ao centro */
+                z-index: 1000;
+                overflow-y: auto; /* Permite rolagem na overlay */
+                padding: 2rem 0; /* Adiciona espaço acima e abaixo */
+            }
+
+            .modal {
+                position: relative;
+                width: 80%;
+                max-width: 800px;
+                margin: 2rem 0; /* Adiciona margem acima e abaixo */
+            }
+
+            .modal-mask {
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                width: 100%;
+                overflow-y: visible; /* Permite que o conteúdo flua naturalmente */
+                display: block;
+            }
+
+            .jm {
+                padding: 2rem;
+                box-sizing: border-box;
+            }
+
+            /* Ajuste para garantir que os botões de ação sejam visíveis */
+            .modal-footer {
+                margin-top: 1rem;
+                display: flex;
+                justify-content: flex-end;
+                padding: 1rem 0;
+                border-top: 1px solid #f0f0f0;
+            }
+            
+            /* Z-index para modais */
+            #modalNovaClasse {
+                z-index: 1000;
+            }
+            
+            #modalEditarClasse {
+                z-index: 1000;
+            }
+            
+            #modalCondicoes {
+                z-index: 1100; /* Maior que as outras modais */
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="linha">
+                <div class="coluna">
+                    <nav class="jm jm-menu nav-maior none" id="menu">
+                        <div class="separador">
+                            <a href="configuracoes.html">Configurações</a>
+                            <a href="hospedes.html">Gestão de Hóspedes</a>
+                            <a href="monitoramento.html" class="ativo">Monitoramento</a>
+                            <a href="#">Sair</a>
+                        </div>
+                    </nav>
+                    <a href="inicial.html" class="logo logo-menor">Thalamus</a>
+                    <a href="#" class="icone-avancar negrito com-texto" onclick="document.getElementById('menu').classList.toggle('none');this.classList.toggle('ativo');return false">Monitoramento</a>
+                </div>
+                <div class="coluna direita">
+                    <a href="#" class="icone-adicionar-header" title="Adicionar Classe" onclick="abrirModalNovaClasse()"></a>
+                    <a href="#" class="avatar" onclick="document.getElementById('usuario').classList.toggle('none');this.classList.toggle('ativo');return false" title="Usuário">
+                        <img src="img/avatar.png"/>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <main id="main">  
+            <aside>
+                <div class="titulo margem efeito">
+                    <div class="m-icone"><a href="#" class="icone-menu" title="Menu" onclick="document.getElementById('main').classList.toggle('esconde');return false"></a></div>
+                </div>
+                <div class="separador margem">
+                    <div class="m-icone">
+                        <a href="javascript:abaMenu('Monitoramento')" class="icone-compras ativo" title="Monitoramento" id="Monitoramento"></a>
+                        <a href="javascript:abaMenu('Configuracoes')" class="icone-gestao" title="Configurações" id="Configuracoes"></a>
+                        <a href="javascript:abaMenu('Relatorios')" class="icone-alvo" title="Relatórios" id="Relatorios"></a>
+                    </div>
+                </div>
+                <nav id="menuMonitoramento" class="nav-maior separador">
+                    <a href="painel.html" class="ativo">Monitoramento e alerta</a>
+                </nav>
+                <nav id="menuConfiguracoes" class="nav-maior separador none">
+                    <a href="hospede.html">Hóspede</a>
+                    <a href="cameraQuarto.html">Câmeras e Quartos</a>
+                    <a href="tipo-eventos.html">Tipo de evento</a>
+                    <a href="tipo-alerta.html"  class="ativo">Tipo de Alertas</a>
+                    <a href="config-evento-alertas.html">Configurações de eventos/alertas</a>
+                    <a href="classeHospede.html">Classe de hóspede</a>
+                    <a href="condicoesSaude.html">Condições de saúde</a>
+                    
+                </nav>
+                <nav id="menuRelatorios" class="nav-maior separador none">
+                    <a href="relatorio-eventos.html">Relatório de Eventos</a>
+                    <a href="relatorio-alertas.html">Relatório de Alertas</a>
+                    <a href="estatisticas.html">Estatísticas</a>
+                </nav>
+            </aside>
+            <section>
+                <div class="titulo">
+                    <div class="margem container">
+                        <div class="m-icone direita">
+                            <div class="pesquisa">
+                                <input type="text" placeholder="Pesquise aqui" id="searchInput" onkeyup="pesquisarClasses()">
+                                <a href="#" class="icone-pesquisa" title="Pesquise"></a>
+                            </div>
+                            <a href="#" class="icone-adicionar-header" title="Adicionar Classe" onclick="abrirModalNovaClasse()"></a>
+                        </div>
+                        <h2>Classes de Hóspedes</h2> 
+                    </div>
+                </div>
+                <div class="margem container">
+                    <div class="bloco margem">
+                        <table class="tabela">
+                            <thead>
+                                <tr>
+                                    <th>ID Classe</th>
+                                    <th>Nome da Classe</th>
+                                    <th>Tipo de Mobilidade</th>
+                                    <th>Nível de Assistência</th>
+                                    <th>Condições Associadas</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaClasses">
+                                <!-- Dados serão inseridos via JavaScript -->
+                            </tbody>
+                        </table>
+                        <div class="paginacao">
+                            <a href="#" class="ativo">1</a>
+                            <a href="#">2</a>
+                            <a href="#">3</a>
+                            <span>...</span>
+                            <a href="#">5</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Modal para Adicionar Nova Classe -->
+            <div class="modal-overlay" id="modalNovaClasse">
+                <div class="modal">
+                    <div class="modal-mask">
+                        <div class="jm">
+                            <div class="modal-header">
+                                <h3>Adicionar Nova Classe de Hóspede</h3>
+                            </div>
+                            <form id="formNovaClasse">
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label for="novoId">ID da Classe*</label>
+                                        <input type="text" id="novoId" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="novoNome">Nome da Classe*</label>
+                                        <input type="text" id="novoNome" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label for="novoTipoMobilidade">Tipo de Mobilidade*</label>
+                                        <select id="novoTipoMobilidade" required>
+                                            <option value="">Selecione</option>
+                                            <option value="alta">Alta</option>
+                                            <option value="media">Média</option>
+                                            <option value="baixa">Baixa</option>
+                                            <option value="nenhuma">Nenhuma</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="novoNivelAssistencia">Nível de Assistência*</label>
+                                        <select id="novoNivelAssistencia" required>
+                                            <option value="">Selecione</option>
+                                            <option value="baixo">Baixo</option>
+                                            <option value="medio">Médio</option>
+                                            <option value="alto">Alto</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="novoStatus">Status</label>
+                                    <select id="novoStatus">
+                                        <option value="ativo">Ativo</option>
+                                        <option value="inativo">Inativo</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Condições de Saúde Associadas</label>
+                                    <div id="condicoesPreview" class="checkbox-container">
+                                        <!-- Será preenchido dinamicamente -->
+                                    </div>
+                                    <button type="button" class="btn-secundario" onclick="abrirModalCondicoes()">Selecionar Condições</button>
+                                </div>
+                                
+                                <div class="modal-footer">
+                                    <button type="button" class="btn-secundario" onclick="fecharModalNovaClasse()">Cancelar</button>
+                                    <button type="button" class="btn-primario" onclick="salvarNovaClasse()">Salvar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal para Selecionar Condições -->
+            <div class="modal-overlay" id="modalCondicoes">
+                <div class="modal" style="width: 80%; max-width: 600px;">
+                    <div class="modal-mask">
+                        <div class="jm">
+                            <div class="modal-header">
+                                <h3>Selecionar Condições de Saúde</h3>
+                            </div>
+                            <div class="checkbox-container" id="condicoesCheckboxes">
+                                <!-- Será preenchido dinamicamente -->
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn-secundario" onclick="fecharModalCondicoes()">Cancelar</button>
+                                <button type="button" class="btn-primario" onclick="salvarCondicoesSelecionadas()">Salvar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal para Editar Classe -->
+            <div class="modal-overlay" id="modalEditarClasse">
+                <div class="modal">
+                    <div class="modal-mask">
+                        <div class="jm">
+                            <div class="modal-header">
+                                <h3>Editar Classe de Hóspede</h3>
+                            </div>
+                            <form id="formEditarClasse">
+                                <input type="hidden" id="editarClasseId">
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label for="editarId">ID da Classe*</label>
+                                        <input type="text" id="editarId" required disabled>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="editarNome">Nome da Classe*</label>
+                                        <input type="text" id="editarNome" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label for="editarTipoMobilidade">Tipo de Mobilidade*</label>
+                                        <select id="editarTipoMobilidade" required>
+                                            <option value="alta">Alta</option>
+                                            <option value="media">Média</option>
+                                            <option value="baixa">Baixa</option>
+                                            <option value="nenhuma">Nenhuma</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="editarNivelAssistencia">Nível de Assistência*</label>
+                                        <select id="editarNivelAssistencia" required>
+                                            <option value="baixo">Baixo</option>
+                                            <option value="medio">Médio</option>
+                                            <option value="alto">Alto</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="editarStatus">Status</label>
+                                    <select id="editarStatus">
+                                        <option value="ativo">Ativo</option>
+                                        <option value="inativo">Inativo</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Condições de Saúde Associadas</label>
+                                    <div id="editarCondicoesPreview" class="checkbox-container">
+                                        <!-- Será preenchido dinamicamente -->
+                                    </div>
+                                    <button type="button" class="btn-secundario" onclick="abrirModalCondicoesEditar()">Selecionar Condições</button>
+                                </div>
+                                
+                                <div class="modal-footer">
+                                    <button type="button" class="btn-secundario" onclick="fecharModalEditarClasse()">Cancelar</button>
+                                    <button type="button" class="btn-primario" onclick="salvarClasseEditada()">Salvar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script>
+            // Dados das classes de hóspedes (simulando um banco de dados)
+            let classesHospedes = [
+                {
+                    id: "CL001",
+                    nome: "Cadeirante",
+                    tipoMobilidade: "baixa",
+                    nivelAssistencia: "medio",
+                    condicoesAssociadas: ["Mobilidade reduzida", "Necessita auxílio para transferência"],
+                    status: "ativo"
+                },
+                {
+                    id: "CL002",
+                    nome: "Acamado com mobilidade",
+                    tipoMobilidade: "baixa",
+                    nivelAssistencia: "alto",
+                    condicoesAssociadas: ["Acamado", "Mobilidade limitada de membros", "Risco de úlcera de pressão"],
+                    status: "ativo"
+                },
+                {
+                    id: "CL003",
+                    nome: "Deambulante com auxílio",
+                    tipoMobilidade: "media",
+                    nivelAssistencia: "medio",
+                    condicoesAssociadas: ["Usa andador", "Risco de queda"],
+                    status: "ativo"
+                },
+                {
+                    id: "CL004",
+                    nome: "Deambulante independente",
+                    tipoMobilidade: "alta",
+                    nivelAssistencia: "baixo",
+                    condicoesAssociadas: ["Independente", "Monitoramento preventivo"],
+                    status: "ativo"
+                },
+                {
+                    id: "CL005",
+                    nome: "Acamado sem mobilidade",
+                    tipoMobilidade: "nenhuma",
+                    nivelAssistencia: "alto",
+                    condicoesAssociadas: ["Acamado", "Dependente total", "Risco alto de úlcera de pressão"],
+                    status: "ativo"
+                }
+            ];
+
+            // Condições de saúde disponíveis para associação
+            const condicoesSaude = [
+                "Mobilidade reduzida",
+                "Necessita auxílio para transferência",
+                "Acamado",
+                "Mobilidade limitada de membros",
+                "Risco de úlcera de pressão",
+                "Usa andador",
+                "Usa bengala",
+                "Risco de queda",
+                "Independente",
+                "Monitoramento preventivo",
+                "Dependente total",
+                "Demência",
+                "Alzheimer",
+                "Parkinson",
+                "AVC prévio",
+                "Diabetes",
+                "Hipertensão",
+                "Problemas cardíacos",
+                "Problemas respiratórios",
+                "Deficiência visual",
+                "Deficiência auditiva"
+            ];
+
+            // Variáveis para controle das condições selecionadas
+            let condicoesSelecionadas = [];
+            let classeEmEdicao = null;
+
+            // Função para controlar o menu lateral
+            function abaMenu(aba) {
+                // Primeiro, remova todas as classes ativas dos ícones
+                document.getElementById('Monitoramento').classList.remove('ativo');
+                document.getElementById('Configuracoes').classList.remove('ativo');
+                document.getElementById('Relatorios').classList.remove('ativo');
+              
+                // Em seguida, esconda todos os menus
+                document.getElementById('menuMonitoramento').classList.add('none');
+                document.getElementById('menuConfiguracoes').classList.add('none');
+                document.getElementById('menuRelatorios').classList.add('none');
+              
+                // Por fim, ative o ícone e mostre o menu correspondente
+                document.getElementById(aba).classList.add('ativo');
+                document.getElementById('menu' + aba).classList.remove('none');
+              
+                // Salvar o estado do menu no localStorage
+                localStorage.setItem('menuAtivo', aba);
+            }  
+                  
+            // Função para renderizar a tabela
+            function renderizarTabela() {
+                const tbody = document.getElementById('tabelaClasses');
+                tbody.innerHTML = '';
+
+                classesHospedes.forEach(classe => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${classe.id}</td>
+                        <td>${classe.nome}</td>
+                        <td>${getTipoMobilidadeTexto(classe.tipoMobilidade)}</td>
+                        <td>${getNivelAssistenciaTexto(classe.nivelAssistencia)}</td>
+                        <td>
+                            <div class="condicoes-container">
+                                ${classe.condicoesAssociadas.map(condicao => 
+                                    `<span class="tag-mobilidade tag-media">${condicao}</span>`
+                                ).join('')}
+                            </div>
+                        </td>
+                        <td><span class="status-${classe.status}">${classe.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
+                        <td class="acoes">
+                            <a href="#" class="icone-salvar" onclick="editarClasse('${classe.id}')">✏️</a>
+                            <a href="#" class="icone-excluir" onclick="excluirClasse('${classe.id}')">🗑️</a>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Função para pesquisar classes
+            function pesquisarClasses() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                
+                if (!searchTerm) {
+                    renderizarTabela();
+                    return;
+                }
+                
+                const tbody = document.getElementById('tabelaClasses');
+                tbody.innerHTML = '';
+
+                classesHospedes.filter(classe => 
+                    classe.id.toLowerCase().includes(searchTerm) ||
+                    classe.nome.toLowerCase().includes(searchTerm) ||
+                    classe.condicoesAssociadas.some(condicao => condicao.toLowerCase().includes(searchTerm))
+                ).forEach(classe => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${classe.id}</td>
+                        <td>${classe.nome}</td>
+                        <td>${getTipoMobilidadeTexto(classe.tipoMobilidade)}</td>
+                        <td>${getNivelAssistenciaTexto(classe.nivelAssistencia)}</td>
+                        <td>
+                            <div class="condicoes-container">
+                                ${classe.condicoesAssociadas.map(condicao => 
+                                    `<span class="tag-mobilidade tag-media">${condicao}</span>`
+                                ).join('')}
+                            </div>
+                        </td>
+                        <td><span class="status-${classe.status}">${classe.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
+                        <td class="acoes">
+                            <a href="#" class="icone-salvar" onclick="editarClasse('${classe.id}')">✏️</a>
+                            <a href="#" class="icone-excluir" onclick="excluirClasse('${classe.id}')">🗑️</a>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Funções auxiliares para obter texto formatado
+            function getTipoMobilidadeTexto(tipo) {
+                const tipos = {
+                    'alta': 'Alta',
+                    'media': 'Média',
+                    'baixa': 'Baixa',
+                    'nenhuma': 'Nenhuma'
+                };
+                return tipos[tipo] || tipo;
+            }
+
+            function getNivelAssistenciaTexto(nivel) {
+                const niveis = {
+                    'baixo': 'Baixo',
+                    'medio': 'Médio',
+                    'alto': 'Alto'
+                };
+                return niveis[nivel] || nivel;
+            }
+
+            // Função para abrir modal de nova classe
+            function abrirModalNovaClasse() {
+                // Limpar formulário
+                document.getElementById('formNovaClasse').reset();
+                condicoesSelecionadas = [];
+                atualizarPreviewCondicoes();
+                
+                // Exibir modal
+                document.getElementById('modalNovaClasse').style.display = 'flex';
+            }
+
+            // Função para fechar modal de nova classe
+            function fecharModalNovaClasse() {
+                document.getElementById('modalNovaClasse').style.display = 'none';
+            }
+
+            // Função para abrir modal de condições
+            function abrirModalCondicoes() {
+                // Preencher checkboxes
+                const checkboxesContainer = document.getElementById('condicoesCheckboxes');
+                checkboxesContainer.innerHTML = '';
+                
+                condicoesSaude.forEach(condicao => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.className = 'checkbox-item';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `cond-${condicao.replace(/\s+/g, '-').toLowerCase()}`;
+                    checkbox.value = condicao;
+                    checkbox.checked = condicoesSelecionadas.includes(condicao);
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = checkbox.id;
+                    label.textContent = condicao;
+                    
+                    checkboxItem.appendChild(checkbox);
+                    checkboxItem.appendChild(label);
+                    checkboxesContainer.appendChild(checkboxItem);
+                });
+                
+                // Exibir modal
+                document.getElementById('modalCondicoes').style.display = 'flex';
+            }
+
+            // Função para abrir modal de condições para edição
+            function abrirModalCondicoesEditar() {
+                // Preencher checkboxes
+                const checkboxesContainer = document.getElementById('condicoesCheckboxes');
+                checkboxesContainer.innerHTML = '';
+                
+                condicoesSaude.forEach(condicao => {
+                    const checkboxItem = document.createElement('div');
+                    checkboxItem.className = 'checkbox-item';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `cond-${condicao.replace(/\s+/g, '-').toLowerCase()}`;
+                    checkbox.value = condicao;
+                    checkbox.checked = condicoesSelecionadas.includes(condicao);
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = checkbox.id;
+                    label.textContent = condicao;
+                    
+                    checkboxItem.appendChild(checkbox);
+                    checkboxItem.appendChild(label);
+                    checkboxesContainer.appendChild(checkboxItem);
+                });
+                
+                // Exibir modal
+                document.getElementById('modalCondicoes').style.display = 'flex';
+            }
+
+            // Função para fechar modal de condições
+            function fecharModalCondicoes() {
+                document.getElementById('modalCondicoes').style.display = 'none';
+            }
+
+            // Função para salvar condições selecionadas
+            function salvarCondicoesSelecionadas() {
+                condicoesSelecionadas = [];
+                const checkboxes = document.querySelectorAll('#condicoesCheckboxes input[type="checkbox"]:checked');
+                
+                checkboxes.forEach(checkbox => {
+                    condicoesSelecionadas.push(checkbox.value);
+                });
+                
+                // Atualizar preview
+                atualizarPreviewCondicoes();
+                
+                // Fechar modal
+                fecharModalCondicoes();
+            }
+
+            // Função para atualizar preview de condições
+            function atualizarPreviewCondicoes() {
+                const previewElement = document.getElementById('condicoesPreview');
+                if (previewElement) {
+                    previewElement.innerHTML = '';
+                    
+                    if (condicoesSelecionadas.length === 0) {
+                        previewElement.innerHTML = '<p>Nenhuma condição selecionada</p>';
+                    } else {
+                        condicoesSelecionadas.forEach(condicao => {
+                            const tag = document.createElement('span');
+                            tag.className = 'tag-mobilidade tag-media';
+                            tag.textContent = condicao;
+                            previewElement.appendChild(tag);
+                        });
+                    }
+                }
+                
+                const editarPreviewElement = document.getElementById('editarCondicoesPreview');
+                if (editarPreviewElement && classeEmEdicao) {
+                    editarPreviewElement.innerHTML = '';
+                    
+                    if (condicoesSelecionadas.length === 0) {
+                        editarPreviewElement.innerHTML = '<p>Nenhuma condição selecionada</p>';
+                    } else {
+                        condicoesSelecionadas.forEach(condicao => {
+                            const tag = document.createElement('span');
+                            tag.className = 'tag-mobilidade tag-media';
+                            tag.textContent = condicao;
+                            editarPreviewElement.appendChild(tag);
+                        });
+                    }
+                }
+            }
+
+            // Função para salvar nova classe
+            function salvarNovaClasse() {
+                const id = document.getElementById('novoId').value;
+                const nome = document.getElementById('novoNome').value;
+                const tipoMobilidade = document.getElementById('novoTipoMobilidade').value;
+                const nivelAssistencia = document.getElementById('novoNivelAssistencia').value;
+                const status = document.getElementById('novoStatus').value;
+                
+                // Validar campos obrigatórios
+                if (!id || !nome || !tipoMobilidade || !nivelAssistencia) {
+                    alert('Por favor, preencha todos os campos obrigatórios!');
+                    return;
+                }
+                
+                // Verificar se já existe uma classe com o mesmo ID
+                if (classesHospedes.some(c => c.id === id)) {
+                    alert('Já existe uma classe com este ID!');
+                    return;
+                }
+                
+                // Criar nova classe
+                const novaClasse = {
+                    id,
+                    nome,
+                    tipoMobilidade,
+                    nivelAssistencia,
+                    condicoesAssociadas: [...condicoesSelecionadas],
+                    status
+                };
+                
+                // Adicionar à lista de classes
+                classesHospedes.push(novaClasse);
+                
+                // Atualizar tabela
+                renderizarTabela();
+                
+                // Fechar modal
+                fecharModalNovaClasse();
+                
+                alert(`Classe "${nome}" adicionada com sucesso!`);
+            }
+
+            // Função para editar classe
+            function editarClasse(id) {
+                classeEmEdicao = classesHospedes.find(c => c.id === id);
+                if (!classeEmEdicao) return;
+                
+                // Preencher formulário
+                document.getElementById('editarId').value = classeEmEdicao.id;
+                document.getElementById('editarNome').value = classeEmEdicao.nome;
+                document.getElementById('editarTipoMobilidade').value = classeEmEdicao.tipoMobilidade;
+                document.getElementById('editarNivelAssistencia').value = classeEmEdicao.nivelAssistencia;
+                document.getElementById('editarStatus').value = classeEmEdicao.status;
+                document.getElementById('editarClasseId').value = classeEmEdicao.id;
+                
+                // Atualizar condições selecionadas
+                condicoesSelecionadas = [...classeEmEdicao.condicoesAssociadas];
+                
+                // Atualizar preview
+                const editarPreviewElement = document.getElementById('editarCondicoesPreview');
+                editarPreviewElement.innerHTML = '';
+                
+                if (condicoesSelecionadas.length === 0) {
+                    editarPreviewElement.innerHTML = '<p>Nenhuma condição selecionada</p>';
+                } else {
+                    condicoesSelecionadas.forEach(condicao => {
+                        const tag = document.createElement('span');
+                        tag.className = 'tag-mobilidade tag-media';
+                        tag.textContent = condicao;
+                        editarPreviewElement.appendChild(tag);
+                    });
+                }
+                
+                // Exibir modal
+                document.getElementById('modalEditarClasse').style.display = 'flex';
+            }
+
+            // Função para fechar modal de edição
+            function fecharModalEditarClasse() {
+                document.getElementById('modalEditarClasse').style.display = 'none';
+                classeEmEdicao = null;
+            }
+
+            // Função para salvar classe editada
+            function salvarClasseEditada() {
+                if (!classeEmEdicao) return;
+                
+                const id = document.getElementById('editarId').value;
+                const nome = document.getElementById('editarNome').value;
+                const tipoMobilidade = document.getElementById('editarTipoMobilidade').value;
+                const nivelAssistencia = document.getElementById('editarNivelAssistencia').value;
+                const status = document.getElementById('editarStatus').value;
+                
+                // Validar campos obrigatórios
+                if (!nome || !tipoMobilidade || !nivelAssistencia) {
+                    alert('Por favor, preencha todos os campos obrigatórios!');
+                    return;
+                }
+                
+                // Atualizar classe
+                const index = classesHospedes.findIndex(c => c.id === classeEmEdicao.id);
+                if (index !== -1) {
+                    classesHospedes[index] = {
+                        id,
+                        nome,
+                        tipoMobilidade,
+                        nivelAssistencia,
+                        condicoesAssociadas: [...condicoesSelecionadas],
+                        status
+                    };
+                }
+                
+                // Atualizar tabela
+                renderizarTabela();
+                
+                // Fechar modal
+                fecharModalEditarClasse();
+                
+                alert(`Classe "${nome}" atualizada com sucesso!`);
+            }
+
+            // Função para excluir classe
+            function excluirClasse(id) {
+                if (confirm('Deseja realmente excluir esta classe de hóspede?')) {
+                    classesHospedes = classesHospedes.filter(c => c.id !== id);
+                    renderizarTabela();
+                    alert('Classe excluída com sucesso!');
+                }
+            }
+
+            // Inicializar a página
+            document.addEventListener('DOMContentLoaded', function() {
+                renderizarTabela();
+              
+                // Recuperar o estado do menu do localStorage
+                const menuAtivo = localStorage.getItem('menuAtivo') || 'Monitoramento';
+              
+                // Aplicar o estado do menu
+                document.getElementById('Monitoramento').classList.remove('ativo');
+                document.getElementById('Configuracoes').classList.remove('ativo');
+                document.getElementById('Relatorios').classList.remove('ativo');
+
+                document.getElementById('menuMonitoramento').classList.add('none');
+                document.getElementById('menuConfiguracoes').classList.add('none');
+                document.getElementById('menuRelatorios').classList.add('none');
+
+                document.getElementById(menuAtivo).classList.add('ativo');
+                document.getElementById('menu' + menuAtivo).classList.remove('none');
+                
+                // Adicionar eventos para fechar modais ao clicar fora
+                document.querySelectorAll('.modal-overlay').forEach(modal => {
+                    modal.addEventListener('click', function(e) {
+                        if (e.target === this) {
+                            this.style.display = 'none';
+                            // Se for a modal de condições, não resetar a classe em edição
+                            if (this.id !== 'modalCondicoes') {
+                                classeEmEdicao = null;
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
