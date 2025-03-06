@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <title>SPEC - Associar Câmera a Local</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content="Sistema de Monitoramento ILPI"/>
+    <link href="css/thalamus.css" rel="stylesheet" type="text/css"/>
+    <style>
+        /* Estilos gerais */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Estilos da tabela */
+        .tabela {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .tabela thead th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tabela td {
+            vertical-align: middle;
+            padding: 0.75rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        /* Estilos para elementos clicáveis */
+        .clicavel {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .clicavel:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Estilos para o menu lateral */
+        aside {
+            width: 250px;
+            background-color: #fff;
+            border-right: 1px solid #eee;
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 60px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .esconde aside {
+            width: 60px;
+        }
+
+        /* Estilos para pesquisa */
+        .pesquisa {
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 0.5rem;
+        }
+
+        .pesquisa input {
+            border: none;
+            background: none;
+            padding: 0.5rem;
+            width: 200px;
+            outline: none;
+        }
+
+        /* Estilos para ícones */
+        .icone-adicionar-header {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%234a6ee0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 24px 24px;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .icone-adicionar-header:hover {
+            background-color: #f0f5ff;
+            border-radius: 4px;
+        }
+
+        /* Estilos para botão de associar */
+        .btn-associar {
+            background-color: #4a6ee0;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-left: 1rem;
+        }
+
+        .btn-associar:hover {
+            background-color: #3b5bbf;
+        }
+
+        /* Estilos para modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none; /* Inicialmente escondida */
+            justify-content: center;
+            align-items: flex-start; /* Alinha ao topo em vez de ao centro */
+            z-index: 1000;
+            overflow-y: auto; /* Permite rolagem na overlay */
+            padding: 2rem 0; /* Adiciona espaço acima e abaixo */
+        }
+
+        .modal {
+            position: relative;
+            width: 80%;
+            max-width: 800px;
+            margin: 2rem 0; /* Adiciona margem acima e abaixo */
+        }
+
+        .modal-mask {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            overflow-y: visible; /* Permite que o conteúdo flua naturalmente */
+            display: block;
+        }
+
+        .jm {
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        /* Ajuste para garantir que os botões de ação sejam visíveis */
+        .modal-footer {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: flex-end;
+            padding: 1rem 0;
+            border-top: 1px solid #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="linha">
+            <div class="coluna">
+                <nav class="jm jm-menu nav-maior none" id="menu">
+                    <div class="separador">
+                        <a href="configuracoes.html">Configurações</a>
+                        <a href="hospedes.html">Gestão de Hóspedes</a>
+                        <a href="monitoramento.html" class="ativo">Monitoramento</a>
+                        <a href="#">Sair</a>
+                    </div>
+                </nav>
+                <a href="inicial.html" class="logo logo-menor">Thalamus</a>
+                <a href="#" class="icone-avancar negrito com-texto" onclick="document.getElementById('menu').classList.toggle('none');this.classList.toggle('ativo');return false">Monitoramento</a>
+            </div>
+        </div>
+    </header>
+
+    <main id="main">
+        <aside>
+            <div class="titulo margem efeito">
+                <div class="m-icone"><a href="#" class="icone-menu" title="Menu" onclick="document.getElementById('main').classList.toggle('esconde');return false"></a></div>
+            </div>
+            <div class="separador margem">
+                <div class="m-icone">
+                    <a href="javascript:abaMenu('Monitoramento')" class="icone-compras" title="Monitoramento" id="Monitoramento"></a>
+                    <a href="javascript:abaMenu('Configuracoes')" class="icone-gestao" title="Configurações" id="Configuracoes"></a>
+                    <a href="javascript:abaMenu('Relatorios')" class="icone-alvo" title="Relatórios" id="Relatorios"></a>
+                </div>
+            </div>
+            <nav id="menuMonitoramento" class="nav-maior separador">
+                <a href="painel.html" class="ativo">Monitoramento e alerta</a>
+            </nav>
+            <nav id="menuConfiguracoes" class="nav-maior separador none">
+                <a href="hospede.html">Hóspede</a>
+                <a href="camera.html">Câmeras</a>
+                <a href="local.html">Locais</a>    
+                <a href="cameraLocal.html">Locais</a>
+                <a href="quartoHospede.html" class="ativo">Hospede Quarto</a>
+                <a href="tipo-eventos.html">Tipo de evento</a>
+                <a href="tipo-alerta.html" >Tipo de Alertas</a>
+                <a href="config-evento-alertas.html">Configurações de eventos/alertas</a>
+                <a href="classeHospede.html">Classe de hóspede</a>
+                <a href="condicoesSaude.html">Condições de saúde</a>
+                
+            </nav>
+            <nav id="menuRelatorios" class="nav-maior separador none">
+                <a href="relatorio-eventos.html">Relatório de Eventos</a>
+                <a href="relatorio-alertas.html">Relatório de Alertas</a>
+                <a href="estatisticas.html">Estatísticas</a>
+            </nav>
+        </aside>
+        <section>
+            <div class="titulo">
+                <div class="margem container">
+                    <h2>Associar Câmera a Local</h2>
+                    <div class="m-icone direita">
+                        <button class="btn-associar" onclick="abrirModalAssociar()">Associar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="margem container">
+                <div class="bloco margem">
+                    <table class="tabela">
+                        <thead>
+                            <tr>
+                                <th>Câmera</th>
+                                <th>Local</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaAssociacoes">
+                            <!-- Dados serão inseridos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal para Associar Câmera a Local -->
+        <div class="modal-overlay" id="modalAssociar" style="display: none;">
+            <div class="modal">
+                <div class="modal-mask">
+                    <div class="jm">
+                        <div class="modal-header">
+                            <h3>Associar Câmera a Local</h3>
+                        </div>
+                        <form id="formAssociar">
+                            <div class="form-group">
+                                <label for="camera">Câmera*</label>
+                                <select id="camera" required>
+                                    <option value="">Selecione</option>
+                                    <option value="CAM001">Câmera 1</option>
+                                    <option value="CAM002">Câmera 2</option>
+                                    <option value="CAM003">Câmera 3</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="local">Local*</label>
+                                <select id="local" required>
+                                    <option value="">Selecione</option>
+                                    <option value="quarto101">Quarto 101</option>
+                                    <option value="quarto102">Quarto 102</option>
+                                    <option value="salao">Saguão</option>
+                                    <option value="corredor">Corredor</option>
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn-secundario" onclick="fecharModalAssociar()">Cancelar</button>
+                                <button type="submit" class="btn-primario">Associar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Dados das associações (simulando um banco de dados)
+        let associacoes = [
+            {
+                camera: "CAM001",
+                local: "quarto101"
+            },
+            {
+                camera: "CAM002",
+                local: "salao"
+            }
+        ];
+
+        // Função para renderizar a tabela de associações
+        function renderizarTabelaAssociacoes() {
+            const tbody = document.getElementById('tabelaAssociacoes');
+            tbody.innerHTML = '';
+
+            associacoes.forEach(associacao => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${associacao.camera}</td>
+                    <td>${associacao.local}</td>
+                    <td class="acoes">
+                        <a href="javascript:void(0)" class="icone-excluir" onclick="excluirAssociacao('${associacao.camera}', '${associacao.local}')">🗑️</a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Função para abrir modal de associação
+        function abrirModalAssociar() {
+            document.getElementById('formAssociar').reset();
+            document.getElementById('modalAssociar').style.display = 'flex';
+        }
+
+        // Função para fechar modal de associação
+        function fecharModalAssociar() {
+            document.getElementById('modalAssociar').style.display = 'none';
+        }
+
+        // Função para salvar nova associação
+        document.getElementById('formAssociar').onsubmit = function(event) {
+            event.preventDefault();
+            const camera = document.getElementById('camera').value;
+            const local = document.getElementById('local').value;
+
+            // Adicionar nova associação
+            associacoes.push({ camera, local });
+            renderizarTabelaAssociacoes();
+            fecharModalAssociar();
+        };
+
+        // Função para excluir associação
+        function excluirAssociacao(camera, local) {
+            if (confirm('Deseja realmente excluir esta associação?')) {
+                associacoes = associacoes.filter(a => !(a.camera === camera && a.local === local));
+                renderizarTabelaAssociacoes();
+            }
+        }
+
+        // Inicializar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            renderizarTabelaAssociacoes();
+        });
+    </script>
+</body>
+</html>

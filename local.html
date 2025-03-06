@@ -496,9 +496,9 @@
                         <table class="tabela">
                             <thead>
                                 <tr>
-                                    <th>ID Classe</th>
-                                    <th>Nome da Classe</th>
-                                    <th>Tipo de Mobilidade</th>
+                                    <th>ID</th>
+                                    <th>Nome do local</th>
+                                    <th>Dependência</th>
                                     <th>Status</th>
                                     <th>Ações</th>
                                 </tr>
@@ -529,24 +529,23 @@
                             <form id="formNovaClasse">
                                 <div class="grid-2">
                                     <div class="form-group">
-                                        <label for="novoId">ID da Classe*</label>
+                                        <label for="novoId">ID </label>
                                         <input type="text" id="novoId" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="novoNome">Nome da Classe*</label>
+                                        <label for="novoNome">Nome do Local</label>
                                         <input type="text" id="novoNome" required>
                                     </div>
                                 </div>
                                 
                                 <div class="grid-2">
                                     <div class="form-group">
-                                        <label for="novoTipoMobilidade">Tipo de Mobilidade*</label>
+                                        <label for="novoTipoMobilidade">Dependencia</label>
                                         <select id="novoTipoMobilidade" required>
                                             <option value="">Selecione</option>
-                                            <option value="alta">Alta</option>
-                                            <option value="media">Média</option>
-                                            <option value="baixa">Baixa</option>
-                                            <option value="nenhuma">Nenhuma</option>
+                                            <option value="alta">Altevita</option>
+                                            <option value="media">Lago</option>
+                                           
                                         </select>
                                     </div>
 
@@ -583,23 +582,22 @@
                                 <input type="hidden" id="editarClasseId">
                                 <div class="grid-2">
                                     <div class="form-group">
-                                        <label for="editarId">ID da Classe*</label>
+                                        <label for="editarId">ID *</label>
                                         <input type="text" id="editarId" required disabled>
                                     </div>
                                     <div class="form-group">
-                                        <label for="editarNome">Nome da Classe*</label>
+                                        <label for="editarNome">Nome *</label>
                                         <input type="text" id="editarNome" required>
                                     </div>
                                 </div>
                                 
                                 <div class="grid-2">
                                     <div class="form-group">
-                                        <label for="editarTipoMobilidade">Tipo de Mobilidade*</label>
+                                        <label for="editarTipoMobilidade">Dependencia*</label>
                                         <select id="editarTipoMobilidade" required>
-                                            <option value="alta">Alta</option>
-                                            <option value="media">Média</option>
-                                            <option value="baixa">Baixa</option>
-                                            <option value="nenhuma">Nenhuma</option>
+                                            <option value="alta">Altevita</option>
+                                            <option value="media">Lago</option>
+                                         
                                         </select>
                                     </div>
 
@@ -630,32 +628,32 @@
             let classesHospedes = [
                 {
                     id: "CL001",
-                    nome: "Cadeirante",
-                    tipoMobilidade: "baixa",
+                    nome: "Corredor",
+                    tipoMobilidade: "Altevita",
                     status: "ativo"
                 },
                 {
                     id: "CL002",
-                    nome: "Acamado com mobilidade",
-                    tipoMobilidade: "baixa",
+                    nome: "Quarto 01",
+                    tipoMobilidade: "Altevita",
                   status: "ativo"
                 },
                 {
                     id: "CL003",
-                    nome: "Deambulante com auxílio",
-                    tipoMobilidade: "media",
+                    nome: "Refeiório",
+                    tipoMobilidade: "Altevita",
                     status: "ativo"
                 },
                 {
                     id: "CL004",
-                    nome: "Deambulante independente",
-                    tipoMobilidade: "alta",
+                    nome: "Recepção",
+                    tipoMobilidade: "Altevita",
                     status: "ativo"
                 },
                 {
                     id: "CL005",
-                    nome: "Acamado sem mobilidade",
-                    tipoMobilidade: "nenhuma",
+                    nome: "quarto 08",
+                    tipoMobilidade: "Altevita",
                     status: "ativo"
                 }
             ];
