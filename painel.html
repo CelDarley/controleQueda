@@ -561,94 +561,8 @@
         <script>
             // Dados dos quartos (simulando um banco de dados)
             const quartos = [
-                {
-                    id: "Q101",
-                    numero: "101",
-                    andar: 1,
-                    tipo: "duplo",
-                    capacidade: 2,
-                    status: "normal",
-                    ultimaAtualizacao: "2023-08-15T14:30:00",
-                    pacientes: [
-                        {
-                            id: "H001",
-                            nome: "Ana Carolina Silva",
-                            idade: 78,
-                            classe: "cadeirante",
-                            alertas: []
-                        },
-                        {
-                            id: "H002",
-                            nome: "José Roberto Oliveira",
-                            idade: 82,
-                            classe: "bengala",
-                            alertas: [
-                                {
-                                    tipo: "baixo",
-                                    mensagem: "Padrão de sono alterado",
-                                    tempo: "2h atrás"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    id: "Q102",
-                    numero: "102",
-                    andar: 1,
-                    tipo: "individual",
-                    capacidade: 1,
-                    status: "atencao",
-                    ultimaAtualizacao: "2023-08-15T14:45:00",
-                    pacientes: [
-                        {
-                            id: "H003",
-                            nome: "Maria Aparecida Santos",
-                            idade: 85,
-                            classe: "acamado",
-                            alertas: [
-                                {
-                                    tipo: "medio",
-                                    mensagem: "Possível desidratação",
-                                    tempo: "30min atrás"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    id: "Q103",
-                    numero: "103",
-                    andar: 1,
-                    tipo: "triplo",
-                    capacidade: 3,
-                    status: "normal",
-                    ultimaAtualizacao: "2023-08-15T14:20:00",
-                    pacientes: [
-                        {
-                            id: "H004",
-                            nome: "Antônio Carlos Ferreira",
-                            idade: 75,
-                            classe: "andador",
-                            alertas: []
-                        },
-                        {
-                            id: "H005",
-                            nome: "Lúcia Helena Mendes",
-                            idade: 70,
-                            classe: "independente",
-                            alertas: []
-                        },
-                        {
-                            id: "H006",
-                            nome: "Roberto Almeida Costa",
-                            idade: 68,
-                            classe: "independente",
-                            alertas: []
-                        }
-                    ]
-                },
-                {
+
+            {
                     id: "Q201",
                     numero: "201",
                     andar: 2,
@@ -680,20 +594,26 @@
                     ]
                 },
                 {
-                    id: "Q202",
-                    numero: "202",
-                    andar: 2,
+                    id: "Q102",
+                    numero: "102",
+                    andar: 1,
                     tipo: "individual",
                     capacidade: 1,
-                    status: "normal",
-                    ultimaAtualizacao: "2023-08-15T14:10:00",
+                    status: "atencao",
+                    ultimaAtualizacao: "2023-08-15T14:45:00",
                     pacientes: [
                         {
-                            id: "H009",
-                            nome: "Paulo Roberto Silva",
-                            idade: 72,
-                            classe: "independente",
-                            alertas: []
+                            id: "H003",
+                            nome: "Maria Aparecida Santos",
+                            idade: 85,
+                            classe: "acamado",
+                            alertas: [
+                                {
+                                    tipo: "medio",
+                                    mensagem: "Possível desidratação",
+                                    tempo: "30min atrás"
+                                }
+                            ]
                         }
                     ]
                 },
@@ -728,6 +648,121 @@
                         }
                     ]
                 },
+
+                {
+                    id: "Q302",
+                    numero: "302",
+                    andar: 3,
+                    tipo: "duplo",
+                    capacidade: 2,
+                    status: "atencao",
+                    ultimaAtualizacao: "2023-08-15T14:50:00",
+                    pacientes: [
+                        {
+                            id: "H015",
+                            nome: "Pedro Henrique Lima",
+                            idade: 85,
+                            classe: "acamado",
+                            alertas: [
+                                {
+                                    tipo: "medio",
+                                    mensagem: "Alteração de sinais vitais",
+                                    tempo: "20min atrás"
+                                }
+                            ]
+                        },
+                        {
+                            id: "H016",
+                            nome: "Ana Beatriz Oliveira",
+                            idade: 73,
+                            classe: "andador",
+                            alertas: []
+                        }
+                    ]
+                },
+                {
+                    id: "Q101",
+                    numero: "101",
+                    andar: 1,
+                    tipo: "duplo",
+                    capacidade: 2,
+                    status: "normal",
+                    ultimaAtualizacao: "2023-08-15T14:30:00",
+                    pacientes: [
+                        {
+                            id: "H001",
+                            nome: "Ana Carolina Silva",
+                            idade: 78,
+                            classe: "cadeirante",
+                            alertas: []
+                        },
+                        {
+                            id: "H002",
+                            nome: "José Roberto Oliveira",
+                            idade: 82,
+                            classe: "bengala",
+                            alertas: [
+                                {
+                                    tipo: "baixo",
+                                    mensagem: "Padrão de sono alterado",
+                                    tempo: "2h atrás"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                
+                {
+                    id: "Q103",
+                    numero: "103",
+                    andar: 1,
+                    tipo: "triplo",
+                    capacidade: 3,
+                    status: "normal",
+                    ultimaAtualizacao: "2023-08-15T14:20:00",
+                    pacientes: [
+                        {
+                            id: "H004",
+                            nome: "Antônio Carlos Ferreira",
+                            idade: 75,
+                            classe: "andador",
+                            alertas: []
+                        },
+                        {
+                            id: "H005",
+                            nome: "Lúcia Helena Mendes",
+                            idade: 70,
+                            classe: "independente",
+                            alertas: []
+                        },
+                        {
+                            id: "H006",
+                            nome: "Roberto Almeida Costa",
+                            idade: 68,
+                            classe: "independente",
+                            alertas: []
+                        }
+                    ]
+                },
+                {
+                    id: "Q202",
+                    numero: "202",
+                    andar: 2,
+                    tipo: "individual",
+                    capacidade: 1,
+                    status: "normal",
+                    ultimaAtualizacao: "2023-08-15T14:10:00",
+                    pacientes: [
+                        {
+                            id: "H009",
+                            nome: "Paulo Roberto Silva",
+                            idade: 72,
+                            classe: "independente",
+                            alertas: []
+                        }
+                    ]
+                },
+                
                 {
                     id: "Q301",
                     numero: "301",
@@ -756,37 +791,6 @@
                             nome: "Maria do Carmo Souza",
                             idade: 77,
                             classe: "independente",
-                            alertas: []
-                        }
-                    ]
-                },
-                {
-                    id: "Q302",
-                    numero: "302",
-                    andar: 3,
-                    tipo: "duplo",
-                    capacidade: 2,
-                    status: "atencao",
-                    ultimaAtualizacao: "2023-08-15T14:50:00",
-                    pacientes: [
-                        {
-                            id: "H015",
-                            nome: "Pedro Henrique Lima",
-                            idade: 85,
-                            classe: "acamado",
-                            alertas: [
-                                {
-                                    tipo: "medio",
-                                    mensagem: "Alteração de sinais vitais",
-                                    tempo: "20min atrás"
-                                }
-                            ]
-                        },
-                        {
-                            id: "H016",
-                            nome: "Ana Beatriz Oliveira",
-                            idade: 73,
-                            classe: "andador",
                             alertas: []
                         }
                     ]

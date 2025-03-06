@@ -369,8 +369,8 @@
                 </nav>
                 <nav id="menuConfiguracoes" class="nav-maior separador none">
                     <a href="hospede.html">Hóspede</a>
-                    <a href="cameraQuarto.html" class="ativo">Câmeras e Quartos</a>
-                    <a href="quartoHospede.html">Hospede Quarto</a>
+                    <a href="cameraQuarto.html" >Câmeras e Quartos</a>
+                    <a href="quartoHospede.html" class="ativo">Hospede Quarto</a>
                     <a href="tipo-eventos.html">Tipo de evento</a>
                     <a href="tipo-alerta.html" >Tipo de Alertas</a>
                     <a href="config-evento-alertas.html">Configurações de eventos/alertas</a>
@@ -394,7 +394,7 @@
                             </div>
                             <a href="#" class="icone-adicionar-header" title="Adicionar Câmera" onclick="abrirModal()"></a>
                         </div>
-                        <h2>Câmeras e Quartos</h2> 
+                        <h2>Relação hóspede a quarto</h2> 
                     </div>
                 </div>
                 <div class="margem container">
@@ -402,12 +402,10 @@
                         <table class="tabela">
                             <thead>
                                 <tr>
-                                    <th>ID Câmera</th>
-                                    <th>Nome da Câmera</th>
+                                    <th>Instalações</th>
                                     <th>Quarto</th>
-                                    <th>Bloco/Prédio</th>
+                                    <th>Hóspede</th>
                                     <th>Status</th>
-                                    <th>Última Verificação</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
@@ -432,26 +430,36 @@
                     <div class="modal-mask">
                         <div class="jm">
                             <div class="modal-header">
-                                <h3 id="modalTitle">Adicionar Câmera</h3>
+                                <h3 id="modalTitle">Relacionar hóspede a quarto</h3>
                             </div>
                           
                             <form id="formCamera" onsubmit="salvarCamera(event)">
                            
                                 
                                 <!-- Campo: ID da Câmera -->
-                                <span class="form-group margem">
+                                <span style="display: none;" class="form-group margem">
                                     <label for="idCamera">ID da Câmera*</label>
                                     <input type="text" id="idCamera" required>
                                 </span>
           
                                 <!-- Campo: Nome da Câmera -->
-                                <span class="form-group margem">
+                                <span class="form-group margem" style="display: none;" >
                                     <label for="nomeCamera">Nome da Câmera*</label>
                                     <input type="text" id="nomeCamera" required>
                                 </span>
           
                                 <!-- Campos: Quarto e Bloco/Prédio -->
                                 <div class="grid-2">
+                                    
+                                    <div class="form-group">
+                                        <label for="bloco">Bloco/Prédio*</label>
+                                        <select id="bloco" required>
+                                            <option value="">Selecione</option>
+                                            <option value="A">Altervita Lago</option>
+                                            <option value="B">Espaçoconvivência</option>
+                                            
+                                        </select>
+                                    </div>
                                     <div class="form-group">
                                         <label for="quarto">Quarto*</label>
                                         <select id="quarto" required>
@@ -464,27 +472,27 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="bloco">Bloco/Prédio*</label>
-                                        <select id="bloco" required>
+                                        <label for="hospede">Hóspede</label>
+                                        <select id="hospede" required>
                                             <option value="">Selecione</option>
-                                            <option value="A">Bloco A</option>
-                                            <option value="B">Bloco B</option>
-                                            <option value="C">Bloco C</option>
+                                            <option value="A">Antonieta Marquerita</option>
+                                            <option value="B">Antuer Clovis</option>
+                                            <option value="C">Benicio Orlando Torres</option>
                                         </select>
                                     </div>
                                 </div>
                <!-- Campo: Endereço IP -->
-                                <span class="form-group margem">
+                                <span style="display: none;"  class="form-group margem">
                                     <label for="enderecoIP">Endereço IP*</label>
                                     <input type="text" id="enderecoIP" required placeholder="192.168.1.100">
                                 </span>
                                 <!-- Campo: Porta -->
-                                <div class="form-group margem">
+                                <div style="display: none;"  class="form-group margem">
                                     <label for="porta">Porta</label>
                                     <input type="text" id="porta" placeholder="8080">
                                 </div>
                                 <!-- Campo: Credenciais -->
-                                <div class="grid-2">
+                                <div style="display: none;"  class="grid-2">
                                     <div class="form-group">
                                         <label for="usuario">Usuário</label>
                                         <input type="text" id="usuario">
@@ -505,7 +513,7 @@
                                 </span>
                                 
                                 <!-- Campo: Observações -->
-                                <span class="form-group margem">
+                                <span style="display: none;"  class="form-group margem">
                                     <label for="observacoes">Observações</label>
                                     <textarea id="observacoes" rows="3"></textarea>
                                 </span>
@@ -513,7 +521,6 @@
                                 <!-- Botões de ação -->
                                 <div class="modal-footer">
                                     <button type="button" class="btn-secundario" onclick="fecharModal()">Cancelar</button>
-                                    <button type="button" class="btn-secundario" onclick="testarConexao()">Testar Conexão</button>
                                     <button type="submit" class="btn-primario">Salvar</button>
                                 </div>
                             </form>
@@ -527,43 +534,28 @@
             // Dados das câmeras (simulando um banco de dados)
             let cameras = [
                 {
-                    id: "CAM001",
-                    nome: "Câmera Quarto 101",
+                    id: '01',
                     quarto: "101",
-                    bloco: "A",
+                    bloco: "Altevita Lago",
+                    hospede: "Euvira Machado Souza",
                     status: "ativo",
-                    ultimaVerificacao: "2025-03-03T08:30:00",
-                    enderecoIP: "192.168.1.101",
-                    porta: "8080",
-                    usuario: "admin",
-                    senha: "******",
-                    observacoes: "Câmera posicionada no canto superior direito do quarto"
+                    
                 },
                 {
-                    id: "CAM002",
-                    nome: "Câmera Quarto 102",
-                    quarto: "102",
-                    bloco: "A",
+                    id: '02',
+                    quarto: "103",
+                    bloco: "Altevita Lago",
+                    hospede: "Antonio Augusto Lara",
                     status: "ativo",
-                    ultimaVerificacao: "2025-03-03T08:35:00",
-                    enderecoIP: "192.168.1.102",
-                    porta: "8080",
-                    usuario: "admin",
-                    senha: "******",
-                    observacoes: "Câmera posicionada no centro do teto"
+                    
                 },
                 {
-                    id: "CAM003",
-                    nome: "Câmera Quarto 201",
-                    quarto: "201",
-                    bloco: "B",
-                    status: "inativo",
-                    ultimaVerificacao: "2025-03-02T14:20:00",
-                    enderecoIP: "192.168.1.201",
-                    porta: "8080",
-                    usuario: "admin",
-                    senha: "******",
-                    observacoes: "Problema de conexão - verificar rede"
+                    id: '03',
+                    quarto: "10",
+                    bloco: "Espaço longevità",
+                    hospede: "Claudia Bonatto Diniz",
+                    status: "ativo",
+                    
                 }
             ];
 
@@ -597,12 +589,11 @@
                 cameras.forEach(camera => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${camera.id}</td>
-                        <td>${camera.nome}</td>
+                        <td> ${camera.bloco}</td>
                         <td>Quarto ${camera.quarto}</td>
-                        <td>Bloco ${camera.bloco}</td>
+                        <td> ${camera.hospede}</td>
+                        
                         <td><span class="status-${camera.status}">${camera.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
-                        <td>${formatarDataHora(camera.ultimaVerificacao)}</td>
                         <td class="acoes">
                             <a href="#" class="icone-editar" onclick="editarCamera('${camera.id}')"></a>
                             <a href="#" class="icone-excluir" onclick="excluirCamera('${camera.id}')"></a>

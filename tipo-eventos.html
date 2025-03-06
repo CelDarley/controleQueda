@@ -503,7 +503,6 @@
                 <a href="inicial.html" class="logo logo-menor">Thalamus</a>
                 <a href="#" class="icone-avancar negrito com-texto" onclick="document.getElementById('menu').classList.toggle('none');this.classList.toggle('ativo');return false">Gestão de Hóspedes</a>
             </div>
- 
         </div>
     </header>
 
@@ -526,6 +525,7 @@
             <nav id="menuConfiguracoes" class="nav-maior separador none">
                 <a href="hospede.html">Hóspede</a>
                 <a href="cameraQuarto.html">Câmeras e Quartos</a>
+                <a href="quartoHospede.html">Hospede Quarto</a>
                 <a href="tipo-eventos.html" class="ativo">Tipo de evento</a>
                 <a href="tipo-alerta.html">Tipo de Alertas</a>
                 <a href="config-evento-alertas.html">Configurações de eventos/alertas</a>
@@ -544,9 +544,8 @@
                     <div class="m-icone direita">
                         <div class="pesquisa">
                             <input type="text" placeholder="Pesquise aqui" id="searchInput" onkeyup="pesquisarEventos()">
-                           
                         </div>
-                        <a href="#" class="icone-adicionar-header" title="Adicionar Evento" onclick="focarNovoEvento()"></a>
+                        <a href="#" class="icone-adicionar-header" title="Adicionar Evento" onclick="abrirModal()"></a>
                     </div>
                     <h2>Tipo de evento</h2> 
                 </div>
@@ -557,7 +556,7 @@
                         <thead>
                             <tr>
                                 <th>ID Evento</th>
-                                <th>Nome do Evento detectável</th>
+                                <th>Nome do Evento monitorado</th>
                                 <th>Descrição</th>
                                 <th>Prioridade</th>
                                 <th>Algoritmo</th>
@@ -580,6 +579,41 @@
             </div>
         </section>
     </main>
+
+    <!-- Modal para Adicionar Novo Evento -->
+    <div id="modalAdicionarEvento" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-mask">
+                <div class="jm">
+                    <h3>Adicionar Novo Evento</h3>
+                    <div class="form-group">
+                        <label for="novoId">ID do Evento:</label>
+                        <input type="text" id="novoId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="novoNome">Nome do Evento:</label>
+                        <input type="text" id="novoNome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="novoDescricao">Descrição:</label>
+                        <input type="text" id="novoDescricao" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="novoPrioridade">Prioridade:</label>
+                        <select id="novoPrioridade">
+                            <option value="alta">Alta</option>
+                            <option value="media">Média</option>
+                            <option value="baixa">Baixa</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="adicionarNovoEvento()" class="btn-primario">Adicionar Evento</button>
+                        <button onclick="fecharModal()" class="btn-secundario">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Dados dos eventos (simulando um banco de dados)
@@ -833,12 +867,10 @@ Tempo de Resposta: ${evento.tempoResposta} segundos`);
             const novoId = document.getElementById('novoId').value;
             const novoNome = document.getElementById('novoNome').value;
             const novoDescricao = document.getElementById('novoDescricao').value;
-            const novoTipo = document.getElementById('novoTipo').value;
             const novoPrioridade = document.getElementById('novoPrioridade').value;
-            const novoStatus = document.getElementById('novoStatus').value;
             
             // Validar campos obrigatórios
-            if (!novoId || !novoNome || !novoDescricao || !novoTipo || !novoPrioridade) {
+            if (!novoId || !novoNome || !novoDescricao) {
                 alert('Preencha todos os campos obrigatórios!');
                 return;
             }
@@ -854,15 +886,15 @@ Tempo de Resposta: ${evento.tempoResposta} segundos`);
                 id: novoId,
                 nome: novoNome,
                 descricao: novoDescricao,
-                tipo: novoTipo,
                 prioridade: novoPrioridade,
-                status: novoStatus || 'ativo',
+                status: 'ativo',
                 acoesAutomaticas: '',
                 tempoResposta: 30
             };
             
             eventos.push(novoEvento);
             renderizarTabela();
+            fecharModal(); // Fechar a modal após adicionar
             alert('Evento adicionado com sucesso!');
         }
 
@@ -874,12 +906,15 @@ Tempo de Resposta: ${evento.tempoResposta} segundos`);
             }
         }
 
-        // Função para focar na linha de novo evento
-        function focarNovoEvento() {
-            document.getElementById('novoId').focus();
-            // Rolar até a parte inferior da tabela
-            const tabela = document.querySelector('.tabela');
-            tabela.scrollTop = tabela.scrollHeight;
+        // Função para abrir a modal
+        function abrirModal() {
+            document.getElementById('modalAdicionarEvento').style.display = 'flex';
+            document.getElementById('novoId').focus(); // Focar no campo ID
+        }
+
+        // Função para fechar a modal
+        function fecharModal() {
+            document.getElementById('modalAdicionarEvento').style.display = 'none';
         }
 
         // Inicializar a tabela quando a página carregar

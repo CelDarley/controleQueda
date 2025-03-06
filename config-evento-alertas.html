@@ -474,7 +474,8 @@
             <nav id="menuConfiguracoes" class="nav-maior separador none">
                 <a href="hospede.html">Hóspede</a>
                 <a href="cameraQuarto.html">Câmeras e Quartos</a>
-                <a href="tipo-eventos.html">Tipo de evento</a>
+                <a href="quartoHospede.html">Hospede Quarto</a>
+                <a href="tipo-eventos.html">Tipo dte evento</a>
                 <a href="tipo-alerta.html">Tipo de Alertas</a>
                 <a href="config-evento-alertas.html" class="ativo">Configurações de eventos/alertas</a>
                 <a href="classeHospede.html">Classe de hóspede</a>
@@ -527,7 +528,7 @@
             </div>
         </section>
 
-        <!-- Modal para Adicionar Novo Alerta -->
+        <!-- Modal para Adicionar Novo Alerta -->t
         <div class="modal-overlay" id="modalNovoAlerta">
             <div class="modal">
                 <div class="modal-mask">
@@ -669,7 +670,8 @@
                 eventos: ['pessoa_pe', 'tentando_levantar'],
                 classeHospede: "cadeirante",
                 tiposAlertas: [
-                    { tipo: "whatsapp", destinatario: "+5511987654321" }
+                    { tipo: "whatsapp", destinatario: "+5511987654321" },
+                    { tipo: "tela", destinatario: "central_monitoramento" }
                 ],
                 status: "ativo"
             },
@@ -678,7 +680,8 @@
                 eventos: ['ausencia_prolongada', 'saindo_quarto'],
                 classeHospede: "andador",
                 tiposAlertas: [
-                    { tipo: "email", destinatario: "enfermagem@ilpi.com.br" }
+                    { tipo: "email", destinatario: "enfermagem@ilpi.com.br" },
+                    { tipo: "tela", destinatario: "central_monitoramento" }
                 ],
                 status: "ativo"
             },
@@ -754,7 +757,7 @@
                 // Criar HTML para os tipos de alerta
                 let tiposAlertasHTML = '';
                 alerta.tiposAlertas.forEach(tipoAlerta => {
-                    tiposAlertasHTML += `<span class="tag-alerta tag-${tipoAlerta.tipo}">${getTipoAlertaTexto(tipoAlerta.tipo)}: ${tipoAlerta.destinatario}</span>`;
+                    tiposAlertasHTML += `<span class="tag-alerta tag-${tipoAlerta.tipo}">${getTipoAlertaTexto(tipoAlerta.tipo)}: ${tipoAlerta.destinatario}</span></br>`;
                 });
 
                 tr.innerHTML = `
