@@ -444,7 +444,12 @@
                     <a href="inicial.html" class="logo logo-menor">Thalamus</a>
                     <a href="#" class="icone-avancar negrito com-texto" onclick="document.getElementById('menu').classList.toggle('none');this.classList.toggle('ativo');return false">Condições de Saúde</a>
                 </div>
-          
+                <div class="coluna direita">
+                    <a href="#" class="icone-adicionar-header" title="Adicionar Condição" onclick="abrirModalNovaCondicao()"></a>
+                    <a href="#" class="avatar" onclick="document.getElementById('usuario').classList.toggle('none');this.classList.toggle('ativo');return false" title="Usuário">
+                        <img src="img/avatar.png"/>
+                    </a>
+                </div>
             </div>
         </header>
 
@@ -485,7 +490,7 @@
                         <div class="m-icone direita">
                             <div class="pesquisa">
                                 <input type="text" placeholder="Pesquise aqui" id="searchInput" onkeyup="pesquisarCondicoes()">
-                               
+                                <a href="#" class="icone-pesquisa" title="Pesquise"></a>
                             </div>
                             <a href="#" class="icone-adicionar-header" title="Adicionar Condição" onclick="abrirModalNovaCondicao()"></a>
                         </div>
@@ -499,8 +504,9 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Nome</th>
+                                    <th>Categoria</th>
                                     <th>Descrição</th>
-                              
+                                    <th>Hóspedes Associados</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
@@ -532,16 +538,38 @@
                                     <label for="novoNome">Nome da Condição*</label>
                                     <input type="text" id="novoNome" required>
                                 </div>
-
+                                
+                                <div class="form-group">
+                                    <label for="novoCategoria">Categoria*</label>
+                                    <select id="novoCategoria" required>
+                                        <option value="">Selecione</option>
+                                        <option value="mobilidade">Mobilidade</option>
+                                        <option value="risco">Risco</option>
+                                        <option value="dependencia">Dependência</option>
+                                        <option value="neurologica">Neurológica</option>
+                                        <option value="cronica">Crônica</option>
+                                        <option value="sensorial">Sensorial</option>
+                                    </select>
+                                </div>
                                 
                                 <div class="form-group">
                                     <label for="novoDescricao">Descrição</label>
                                     <textarea id="novoDescricao" rows="3"></textarea>
                                 </div>
-                         
+                                
+                                <div class="hospede-selector">
+                                    <div class="form-group">
+                                        <label for="novoHospedesAssociados">Associar a Hóspedes</label>
+                                        <select id="novoHospedesAssociados" multiple size="5">
+                                            <!-- Opções serão preenchidas via JavaScript -->
+                                        </select>
+                                        <small>Segure Ctrl para selecionar múltiplos hóspedes</small>
+                                    </div>
+                                </div>
                                 
                                 <div class="modal-footer">
                                     <button type="button" class="btn-secundario" onclick="fecharModalNovaCondicao()">Cancelar</button>
+                                    <button type="button" class="btn-primario" onclick="salvarNovaCondicao()">Salvar</button>
                                 </div>
                             </form>
                         </div>
@@ -565,14 +593,32 @@
                                     <input type="text" id="editarNome" required>
                                 </div>
                                 
-                  
+                                <div class="form-group">
+                                    <label for="editarCategoria">Categoria*</label>
+                                    <select id="editarCategoria" required>
+                                        <option value="mobilidade">Mobilidade</option>
+                                        <option value="risco">Risco</option>
+                                        <option value="dependencia">Dependência</option>
+                                        <option value="neurologica">Neurológica</option>
+                                        <option value="cronica">Crônica</option>
+                                        <option value="sensorial">Sensorial</option>
+                                    </select>
+                                </div>
                                 
                                 <div class="form-group">
                                     <label for="editarDescricao">Descrição</label>
                                     <textarea id="editarDescricao" rows="3"></textarea>
                                 </div>
                                 
-                    
+                                <div class="hospede-selector">
+                                    <div class="form-group">
+                                        <label for="editarHospedesAssociados">Associar a Hóspedes</label>
+                                        <select id="editarHospedesAssociados" multiple size="5">
+                                            <!-- Opções serão preenchidas via JavaScript -->
+                                        </select>
+                                        <small>Segure Ctrl para selecionar múltiplos hóspedes</small>
+                                    </div>
+                                </div>
                                 
                                 <div class="modal-footer">
                                     <button type="button" class="btn-secundario" onclick="fecharModalEditarCondicao()">Cancelar</button>
@@ -594,7 +640,14 @@
                             </div>
                             <form id="formAssociarHospede">
                                 <input type="hidden" id="associarCondicaoId">
-                        
+                                
+                                <div class="form-group">
+                                    <label for="associarHospede">Selecione o Hóspede*</label>
+                                    <select id="associarHospede" required>
+                                        <option value="">Selecione um hóspede</option>
+                                        <!-- Opções serão preenchidas via JavaScript -->
+                                    </select>
+                                </div>
                                 
                                 <div class="modal-footer">
                                     <button type="button" class="btn-secundario" onclick="fecharModalAssociarHospede()">Cancelar</button>
@@ -845,13 +898,13 @@
                     tr.innerHTML = `
                         <td>${condicao.id}</td>
                         <td>${condicao.nome}</td>
-               
+                        <td><span class="tag-condicao tag-${condicao.categoria}">${getCategoriaTexto(condicao.categoria)}</span></td>
                         <td>${condicao.descricao || '-'}</td>
-         
+                        <td class="condicoes-lista">${hospedesHTML}</td>
                         <td class="acoes">
                             <a href="javascript:void(0)" class="icone-salvar" onclick="editarCondicao('${condicao.id}')">✏️</a>
                             <a href="javascript:void(0)" class="icone-excluir" onclick="excluirCondicao('${condicao.id}')">🗑️</a>
-
+                            <a href="javascript:void(0)" class="icone-adicionar" onclick="abrirModalAssociarHospede('${condicao.id}')">👤</a>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -968,7 +1021,12 @@
                 // Preencher formulário
                 document.getElementById('editarCondicaoId').value = condicao.id;
                 document.getElementById('editarNome').value = condicao.nome;
+                document.getElementById('editarCategoria').value = condicao.categoria;
                 document.getElementById('editarDescricao').value = condicao.descricao || '';
+                
+                // Preencher select de hóspedes
+                preencherSelectHospedes('editarHospedesAssociados', condicao.hospedesAssociados);
+                
                 // Exibir modal
                 document.getElementById('modalEditarCondicao').style.display = 'flex';
             }

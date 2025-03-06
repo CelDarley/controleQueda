@@ -348,12 +348,7 @@
                     <a href="inicial.html" class="logo logo-menor">Thalamus</a>
                     <a href="#" class="icone-avancar negrito com-texto" onclick="document.getElementById('menu').classList.toggle('none');this.classList.toggle('ativo');return false">Monitoramento</a>
                 </div>
-                <div class="coluna direita">
-                    <a href="#" class="icone-adicionar-header" title="Adicionar Câmera" onclick="abrirModal()"></a>
-                    <a href="#" class="avatar" onclick="document.getElementById('usuario').classList.toggle('none');this.classList.toggle('ativo');return false" title="Usuário">
-                        <img src="img/avatar.png"/>
-                    </a>
-                </div>
+                
             </div>
         </header>
 
@@ -364,7 +359,7 @@
                 </div>
                 <div class="separador margem">
                     <div class="m-icone">
-                        <a href="javascript:abaMenu('Monitoramento')" class="icone-compras ativo" title="Monitoramento" id="Monitoramento"></a>
+                        <a href="javascript:abaMenu('Monitoramento')" class="icone-compras" title="Monitoramento" id="Monitoramento"></a>
                         <a href="javascript:abaMenu('Configuracoes')" class="icone-gestao" title="Configurações" id="Configuracoes"></a>
                         <a href="javascript:abaMenu('Relatorios')" class="icone-alvo" title="Relatórios" id="Relatorios"></a>
                     </div>
@@ -374,9 +369,9 @@
                 </nav>
                 <nav id="menuConfiguracoes" class="nav-maior separador none">
                     <a href="hospede.html">Hóspede</a>
-                    <a href="cameraQuarto.html">Câmeras e Quartos</a>
+                    <a href="cameraQuarto.html" class="ativo">Câmeras e Quartos</a>
                     <a href="tipo-eventos.html">Tipo de evento</a>
-                    <a href="tipo-alerta.html"  class="ativo">Tipo de Alertas</a>
+                    <a href="tipo-alerta.html" >Tipo de Alertas</a>
                     <a href="config-evento-alertas.html">Configurações de eventos/alertas</a>
                     <a href="classeHospede.html">Classe de hóspede</a>
                     <a href="condicoesSaude.html">Condições de saúde</a>
@@ -394,7 +389,7 @@
                         <div class="m-icone direita">
                             <div class="pesquisa">
                                 <input type="text" placeholder="Pesquise aqui" id="searchInput" onkeyup="pesquisarCameras()">
-                                <a href="#" class="icone-pesquisa" title="Pesquise"></a>
+                                
                             </div>
                             <a href="#" class="icone-adicionar-header" title="Adicionar Câmera" onclick="abrirModal()"></a>
                         </div>
@@ -440,21 +435,19 @@
                             </div>
                           
                             <form id="formCamera" onsubmit="salvarCamera(event)">
-                                <div class="camera-preview" id="cameraPreview">
-                                    <span>Visualização da câmera</span>
-                                </div>
+                           
                                 
                                 <!-- Campo: ID da Câmera -->
-                                <div class="form-group margem">
+                                <span class="form-group margem">
                                     <label for="idCamera">ID da Câmera*</label>
                                     <input type="text" id="idCamera" required>
-                                </div>
+                                </span>
           
                                 <!-- Campo: Nome da Câmera -->
-                                <div class="form-group margem">
+                                <span class="form-group margem">
                                     <label for="nomeCamera">Nome da Câmera*</label>
                                     <input type="text" id="nomeCamera" required>
-                                </div>
+                                </span>
           
                                 <!-- Campos: Quarto e Bloco/Prédio -->
                                 <div class="grid-2">
@@ -479,19 +472,16 @@
                                         </select>
                                     </div>
                                 </div>
-          
-                                <!-- Campo: Endereço IP -->
-                                <div class="form-group margem">
+               <!-- Campo: Endereço IP -->
+                                <span class="form-group margem">
                                     <label for="enderecoIP">Endereço IP*</label>
                                     <input type="text" id="enderecoIP" required placeholder="192.168.1.100">
-                                </div>
-                                
+                                </span>
                                 <!-- Campo: Porta -->
                                 <div class="form-group margem">
                                     <label for="porta">Porta</label>
                                     <input type="text" id="porta" placeholder="8080">
                                 </div>
-                                
                                 <!-- Campo: Credenciais -->
                                 <div class="grid-2">
                                     <div class="form-group">
@@ -505,19 +495,19 @@
                                 </div>
                                 
                                 <!-- Campo: Status -->
-                                <div class="form-group margem">
+                                <span class="form-group margem">
                                     <label for="status">Status</label>
                                     <select id="status">
                                         <option value="ativo">Ativo</option>
                                         <option value="inativo">Inativo</option>
                                     </select>
-                                </div>
+                                </span>
                                 
                                 <!-- Campo: Observações -->
-                                <div class="form-group margem">
+                                <span class="form-group margem">
                                     <label for="observacoes">Observações</label>
                                     <textarea id="observacoes" rows="3"></textarea>
-                                </div>
+                                </span>
             
                                 <!-- Botões de ação -->
                                 <div class="modal-footer">

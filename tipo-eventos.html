@@ -1,867 +1,911 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-    <head>
-        <title>SPEC - Sistema de Monitoramento ILPI</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <meta name="description" content="Sistema de Monitoramento ILPI"/>
-        <link href="css/thalamus.css" rel="stylesheet" type="text/css"/>
-        <style>
-            /* Estilos gerais */
-            body {
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 0;
-            }
+<head>
+    <title>SPEC - Sistema de Monitoramento ILPI</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Sistema de Monitoramento ILPI" />
+    <link href="css/thalamus.css" rel="stylesheet" type="text/css" />
+    <style>
+        /* Estilos gerais */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
-            /* Estilos da tabela */
-            .tabela {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 1rem;
-                background-color: #fff;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            }
+        /* Estilos da tabela */
+        .tabela {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
 
-            .tabela thead th {
-                background-color: #f8f9fa;
-                font-weight: 600;
-                text-align: left;
-                padding: 1rem;
-                border-bottom: 2px solid #dee2e6;
-            }
+        .tabela thead th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 2px solid #dee2e6;
+        }
 
-            .tabela td {
-                vertical-align: middle;
-                padding: 0.75rem;
-                border-bottom: 1px solid #dee2e6;
-            }
+        .tabela td {
+            vertical-align: middle;
+            padding: 0.75rem;
+            border-bottom: 1px solid #dee2e6;
+        }
 
-            /* Estilos para chips e contadores */
-            .chip {
-                display: inline-block;
-                padding: 2px 8px;
-                border-radius: 12px;
-                font-size: 0.75rem;
-                margin-left: 8px;
-                font-weight: 500;
-            }
+        /* Estilos para chips e contadores */
+        .chip {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+            font-weight: 500;
+        }
 
-            .bg-ok {
-                background-color: #4CAF50;
-                color: white;
-            }
+        .bg-ok {
+            background-color: #4caf50;
+            color: white;
+        }
 
-            .bg-cinza {
-                background-color: #f0f0f0;
-                color: #333;
-            }
+        .bg-cinza {
+            background-color: #f0f0f0;
+            color: #333;
+        }
 
-            .bg-ausente {
-                background-color: #FFA726;
-                color: white;
-            }
+        .bg-ausente {
+            background-color: #ffa726;
+            color: white;
+        }
 
-            .contador {
-                min-width: 24px;
-                text-align: center;
-                margin: 0;
-            }
+        /* Estilos para elementos clicáveis */
+        .clicavel {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
 
-            /* Estilos para elementos clicáveis */
-            .clicavel {
-                cursor: pointer;
-                transition: background-color 0.2s;
-            }
+        .clicavel:hover {
+            background-color: #f5f5f5;
+        }
 
-            .clicavel:hover {
-                background-color: #f5f5f5;
-            }
+        /* Estilos para o menu lateral */
+        aside {
+            width: 250px;
+            background-color: #fff;
+            border-right: 1px solid #eee;
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 60px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
 
-            /* Estilos para textos e fontes */
-            .fonte-menor {
-                font-size: 0.8rem;
-                color: #666;
-                display: block;
-                margin-top: 2px;
-            }
+        .esconde aside {
+            width: 60px;
+        }
 
-            /* Estilos para o menu lateral */
+        /* Estilos para paginação */
+        .paginacao {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .paginacao a {
+            padding: 0.5rem 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            color: #4a6ee0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .paginacao a.ativo {
+            background-color: #4a6ee0;
+            color: white;
+            border-color: #4a6ee0;
+        }
+
+        .paginacao a:hover:not(.ativo) {
+            background-color: #f8f9fa;
+        }
+
+        /* Estilos para pesquisa */
+        .pesquisa {
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 0.5rem;
+        }
+
+        .pesquisa input {
+            border: none;
+            background: none;
+            padding: 0.5rem;
+            width: 200px;
+            outline: none;
+        }
+
+        /* Estilos para ícones */
+        .icone-pesquisa {
+            width: 24px;
+            height: 24px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234a6ee0"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .icone-adicionar-header {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%234a6ee0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 24px 24px;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .icone-adicionar-header:hover {
+            background-color: #f0f5ff;
+            border-radius: 4px;
+        }
+
+        /* Estilos para status */
+        .status-ativo {
+            background-color: #4caf50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .status-inativo {
+            background-color: #f44336;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        /* Estilos para formulário */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-primario {
+            background-color: #4a6ee0;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-secundario {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Estilos para ícones de ação */
+        .acoes {
+            white-space: nowrap;
+            text-align: center;
+            min-width: 80px;
+            padding: 0 10px;
+        }
+
+        .icone-salvar,
+        .icone-excluir {
+            display: inline-block;
+            margin: 0 5px;
+            font-size: 18px;
+            text-decoration: none;
+            vertical-align: middle;
+        }
+
+        .acoes a:first-child {
+            margin-left: 8px;
+        }
+
+        .acoes a:last-child {
+            margin-right: 8px;
+        }
+
+        .icone-salvar:hover {
+            color: #4a6ee0;
+            transform: scale(1.2);
+            transition: transform 0.2s;
+        }
+
+        .icone-excluir:hover {
+            color: #f44336;
+            transform: scale(1.2);
+            transition: transform 0.2s;
+        }
+
+        /* Estilos para tags de classe de hóspede */
+        .tag-classe {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .tag-cadeirante {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .tag-acamado {
+            background-color: #9c27b0;
+            color: white;
+        }
+
+        .tag-andador {
+            background-color: #00bcd4;
+            color: white;
+        }
+
+        .tag-bengala {
+            background-color: #009688;
+            color: white;
+        }
+
+        .tag-independente {
+            background-color: #8bc34a;
+            color: white;
+        }
+
+        /* Estilos para tags de condições de saúde */
+        .tag-condicao {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 2px;
+        }
+
+        /* Cores específicas para algumas condições */
+        .tag-acamado {
+            background-color: #ff5722;
+            color: white;
+        }
+
+        .tag-demencia,
+        .tag-alzheimer,
+        .tag-parkinson {
+            background-color: #9c27b0;
+            color: white;
+        }
+
+        .tag-mobilidade_reduzida,
+        .tag-mobilidade_limitada,
+        .tag-auxilio_transferencia {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .tag-independente {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .tag-dependente_total {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .tag-diabetes,
+        .tag-hipertensao,
+        .tag-problemas_cardiacos,
+        .tag-problemas_respiratorios {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .tag-deficiencia_visual {
+            background-color: #607d8b;
+            color: white;
+        }
+
+        .tag-risco_ulcera {
+            background-color: #e91e63;
+            color: white;
+        }
+
+        .tag-usa_andador {
+            background-color: #00bcd4;
+            color: white;
+        }
+
+        .tag-avc_previo {
+            background-color: #673ab7;
+            color: white;
+        }
+
+        /* Correção para o problema de posicionamento e rolagem na modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none; /* Inicialmente escondida */
+            justify-content: center;
+            align-items: flex-start; /* Alinha ao topo em vez de ao centro */
+            z-index: 1000;
+            overflow-y: auto; /* Permite rolagem na overlay */
+            padding: 2rem 0; /* Adiciona espaço acima e abaixo */
+        }
+
+        .modal {
+            position: relative;
+            width: 80%;
+            max-width: 800px;
+            margin: 2rem 0; /* Adiciona margem acima e abaixo */
+        }
+
+        .modal-mask {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            overflow-y: visible; /* Permite que o conteúdo flua naturalmente */
+            display: block;
+        }
+
+        .jm {
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        /* Ajuste para garantir que os botões de ação sejam visíveis */
+        .modal-footer {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: flex-end;
+            padding: 1rem 0;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* Z-index para modais */
+        #modalNovoHospede {
+            z-index: 1000;
+        }
+
+        #modalEditarHospede {
+            z-index: 1000;
+        }
+
+        /* Estilos para checkbox personalizado */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .checkbox-container label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+
+        .checkbox-group {
+            margin-bottom: 1rem;
+            border: 1px solid #eee;
+            padding: 1rem;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .checkbox-group-title {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        /* Estilos para ícones de tecnologia */
+        .tech-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .wearable-icon {
+            color: #4a6ee0;
+        }
+
+        .facial-icon {
+            color: #4caf50;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
             aside {
-                width: 250px;
-                background-color: #fff;
-                border-right: 1px solid #eee;
-                height: 100%;
-                position: fixed;
-                left: 0;
-                top: 60px;
-                overflow-y: auto;
-                transition: all 0.3s ease;
-            }
-
-            .esconde aside {
                 width: 60px;
             }
 
-            /* Estilos para paginação */
-            .paginacao {
-                display: flex;
-                justify-content: center;
-                gap: 0.5rem;
-                margin-top: 1rem;
+            section {
+                margin-left: 60px;
             }
 
-            .paginacao a {
-                padding: 0.5rem 1rem;
-                border: 1px solid #dee2e6;
-                border-radius: 4px;
-                color: #4a6ee0;
-                text-decoration: none;
-                transition: all 0.2s;
+            .tabela {
+                font-size: 0.9rem;
             }
 
-            .paginacao a.ativo {
-                background-color: #4a6ee0;
-                color: white;
-                border-color: #4a6ee0;
+            .chip {
+                font-size: 0.7rem;
             }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="linha">
+            <div class="coluna">
+                <nav class="jm jm-menu nav-maior none" id="menu">
+                    <div class="separador">
+                        <a href="configuracoes.html">Configurações</a>
+                        <a href="hospedes.html" class="ativo">Gestão de Hóspedes</a>
+                        <a href="monitoramento.html">Monitoramento</a>
+                        <a href="#">Sair</a>
+                    </div>
+                </nav>
+                <a href="inicial.html" class="logo logo-menor">Thalamus</a>
+                <a href="#" class="icone-avancar negrito com-texto" onclick="document.getElementById('menu').classList.toggle('none');this.classList.toggle('ativo');return false">Gestão de Hóspedes</a>
+            </div>
+ 
+        </div>
+    </header>
 
-            .paginacao a:hover:not(.ativo) {
-                background-color: #f8f9fa;
-            }
-
-            /* Estilos para pesquisa */
-            .pesquisa {
-                display: flex;
-                align-items: center;
-                background-color: #f8f9fa;
-                border-radius: 4px;
-                padding: 0.5rem;
-            }
-
-            .pesquisa input {
-                border: none;
-                background: none;
-                padding: 0.5rem;
-                width: 200px;
-                outline: none;
-            }
-
-            /* Estilos para ícones */
-            .icone-pesquisa {
-                width: 24px;
-                height: 24px;
-                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234a6ee0"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>');
-                background-repeat: no-repeat;
-                background-position: center;
-            }
-
-            .icone-inc {
-                width: 24px;
-                height: 24px;
-                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234a6ee0"><path d="M12 5v14M5 12h14"/></svg>');
-                background-repeat: no-repeat;
-                background-position: center;
-                margin-left: 1rem;
-            }
-            
-            .icone-adicionar-header {
-                display: inline-block;
-                width: 32px;
-                height: 32px;
-                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%234a6ee0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>');
-                background-repeat: no-repeat;
-                background-position: center;
-                background-size: 24px 24px;
-                cursor: pointer;
-                border: none;
-                outline: none;
-                transition: background-color 0.3s ease;
-            }
-
-            .icone-adicionar-header:hover {
-                background-color: #f0f5ff;
-                border-radius: 4px;
-            }
-            
-            /* Estilos para prioridade dos eventos */
-            .prioridade-alta {
-                background-color: #F44336;
-                color: white;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 0.8rem;
-            }
-            
-            .prioridade-media {
-                background-color: #FFA726;
-                color: white;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 0.8rem;
-            }
-            
-            .prioridade-baixa {
-                background-color: #4CAF50;
-                color: white;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 0.8rem;
-            }
-            
-            /* Estilos para edição in-line */
-            .editable {
-                cursor: pointer;
-                position: relative;
-            }
-
-            .editable:hover {
-                background-color: #f5f5f5;
-            }
-
-            .editable:hover::after {
-                content: "✏️";
-                position: absolute;
-                right: 5px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 12px;
-                opacity: 0.5;
-            }
-
-            .edit-input {
-                width: 100%;
-                padding: 5px;
-                border: 1px solid #4a6ee0;
-                border-radius: 4px;
-                box-sizing: border-box;
-            }
-
-            .editable-select {
-                width: 100%;
-                padding: 5px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                background-color: white;
-            }
-
-            .nova-linha input,
-            .nova-linha select {
-                width: 100%;
-                padding: 5px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-            }
-
-            .nova-linha {
-                background-color: #f8f9fa;
-            }
-
-            /* Aumentar largura da coluna de tipo */
-            .tabela th:nth-child(4), 
-            .tabela td:nth-child(4) {
-                min-width: 150px; /* Ajuste este valor conforme necessário */
-                width: 15%; /* Define uma porcentagem da largura da tabela */
-            }
-
-            /* Também podemos ajustar as outras colunas para melhor distribuição */
-            .tabela th:nth-child(1), 
-            .tabela td:nth-child(1) {
-                width: 10%; /* ID do evento */
-            }
-
-            .tabela th:nth-child(2), 
-            .tabela td:nth-child(2) {
-                width: 15%; /* Nome do evento */
-            }
-
-            .tabela th:nth-child(3), 
-            .tabela td:nth-child(3) {
-                width: 25%; /* Descrição */
-            }
-
-            .tabela th:nth-child(5), 
-            .tabela td:nth-child(5) {
-                width: 12%; /* Prioridade */
-            }
-
-            .tabela th:nth-child(6), 
-            .tabela td:nth-child(6) {
-                width: 10%; /* Status */
-            }
-
-            .tabela th:nth-child(7), 
-            .tabela td:nth-child(7) {
-                width: 10%; /* Ações */
-            }
-
-
-            .icone-salvar,
-            .icone-excluir,
-            .icone-adicionar {
-                margin: 0 8px;
-                font-size: 18px;
-                text-decoration: none;
-            }
-            .icone-excluir {
-                margin-left: 12px; /* Espaçamento maior à esquerda da lixeira */
-            }
-            .icone-salvar:hover,
-            .icone-adicionar:hover {
-                color: #4a6ee0;
-                transform: scale(1.2);
-                transition: transform 0.2s;
-            }
-
-            .icone-excluir:hover {
-                color: #F44336;
-                transform: scale(1.2);
-                transition: transform 0.2s;
-            }
-            .acoes {
-                display: flex;
-                justify-content: center; /* ou space-around para distribuir o espaço */
-                align-items: center;
-                min-width: 100px;
-                padding: 0 5px;
-            }
-            
-            /* Responsividade */
-            @media (max-width: 768px) {
-                aside {
-                    width: 60px;
-                }
-
-                section {
-                    margin-left: 60px;
-                }
-
-                .tabela {
-                    font-size: 0.9rem;
-                }
-
-                .chip {
-                    font-size: 0.7rem;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <header>
-            <div class="linha">
-                <div class="coluna">
-                    <nav class="jm jm-menu nav-maior none" id="menu">
-                        <div class="separador">
-                            <a href="configuracoes.html">Configurações</a>
-                            <a href="hospedes.html">Gestão de Hóspedes</a>
-                            <a href="monitoramento.html" class="ativo">Monitoramento</a>
-                            <a href="#">Sair</a>
-                        </div>
-                    </nav>
-                    <a href="inicial.html" class="logo logo-menor">Thalamus</a>
-                    <a href="#" class="icone-avancar negrito com-texto" onclick="document.getElementById('menu').classList.toggle('none');this.classList.toggle('ativo');return false">Monitoramento</a>
-                </div>
-                <div class="coluna direita">
-                    <a href="#" class="icone-adicionar-header" title="Adicionar Evento" onclick="focarNovoEvento()"></a>
-                    <a href="#" class="avatar" onclick="document.getElementById('usuario').classList.toggle('none');this.classList.toggle('ativo');return false" title="Usuário">
-                        <img src="img/avatar.png"/>
-                    </a>
+    <main id="main">  
+        <aside>
+            <div class="titulo margem efeito">
+                <div class="m-icone"><a href="#" class="icone-menu" title="Menu" onclick="document.getElementById('main').classList.toggle('esconde');return false"></a></div>
+            </div>
+            <div class="separador margem">
+                <div class="m-icone">
+                    <a href="javascript:abaMenu('Monitoramento')" class="icone-compras ativo" title="Monitoramento" id="Monitoramento"></a>
+                    <a href="javascript:abaMenu('Configuracoes')" class="icone-gestao" title="Configurações" id="Configuracoes"></a>
+                    <a href="javascript:abaMenu('Relatorios')" class="icone-alvo" title="Relatórios" id="Relatorios"></a>
                 </div>
             </div>
-        </header>
-
-        <main id="main">  
-            <aside>
-                <div class="titulo margem efeito">
-                    <div class="m-icone"><a href="#" class="icone-menu" title="Menu" onclick="document.getElementById('main').classList.toggle('esconde');return false"></a></div>
-                </div>
-                <div class="separador margem">
-                    <div class="m-icone">
-                        <a href="javascript:abaMenu('Monitoramento')" class="icone-compras ativo" title="Monitoramento" id="Monitoramento"></a>
-                        <a href="javascript:abaMenu('Configuracoes')" class="icone-gestao" title="Configurações" id="Configuracoes"></a>
-                        <a href="javascript:abaMenu('Relatorios')" class="icone-alvo" title="Relatórios" id="Relatorios"></a>
-                    </div>
-                </div>
          
-                <nav id="menuMonitoramento" class="nav-maior separador">
-                    <a href="painel.html" class="ativo">Monitoramento e alerta</a>
-                </nav>
-                <nav id="menuConfiguracoes" class="nav-maior separador none">
-                    <a href="hospede.html">Hóspede</a>
-                    <a href="cameraQuarto.html">Câmeras e Quartos</a>
-                    <a href="tipo-eventos.html">Tipo de evento</a>
-                    <a href="tipo-alerta.html"  class="ativo">Tipo de Alertas</a>
-                    <a href="config-evento-alertas.html">Configurações de eventos/alertas</a>
-                    <a href="classeHospede.html">Classe de hóspede</a>
-                    <a href="condicoesSaude.html">Condições de saúde</a>
-                    
-                </nav>
-                <nav id="menuRelatorios" class="nav-maior separador none">
-                    <a href="relatorio-eventos.html">Relatório de Eventos</a>
-                    <a href="relatorio-alertas.html">Relatório de Alertas</a>
-                    <a href="estatisticas.html">Estatísticas</a>
-                </nav>
-            </aside>
-            <section>
-                <div class="titulo">
-                    <div class="margem container">
-                        <div class="m-icone direita">
-                            <div class="pesquisa">
-                                <input type="text" placeholder="Pesquise aqui" id="searchInput" onkeyup="pesquisarEventos()">
-                                <a href="#" class="icone-pesquisa" title="Pesquise"></a>
-                            </div>
-                            <a href="#" class="icone-adicionar-header" title="Adicionar Evento" onclick="focarNovoEvento()"></a>
-                        </div>
-                        <h2>Tipo de evento</h2> 
-                    </div>
-                </div>
+            <nav id="menuMonitoramento" class="nav-maior separador">
+                <a href="painel.html" class="ativo">Monitoramento e alerta</a>
+            </nav>
+            <nav id="menuConfiguracoes" class="nav-maior separador none">
+                <a href="hospede.html">Hóspede</a>
+                <a href="cameraQuarto.html">Câmeras e Quartos</a>
+                <a href="tipo-eventos.html" class="ativo">Tipo de evento</a>
+                <a href="tipo-alerta.html">Tipo de Alertas</a>
+                <a href="config-evento-alertas.html">Configurações de eventos/alertas</a>
+                <a href="classeHospede.html">Classe de hóspede</a>
+                <a href="condicoesSaude.html">Condições de saúde</a>
+            </nav>
+            <nav id="menuRelatorios" class="nav-maior separador none">
+                <a href="relatorio-eventos.html">Relatório de Eventos</a>
+                <a href="relatorio-alertas.html">Relatório de Alertas</a>
+                <a href="estatisticas.html">Estatísticas</a>
+            </nav>
+        </aside>
+        <section>
+            <div class="titulo">
                 <div class="margem container">
-                    <div class="bloco margem">
-                        <table class="tabela">
-                            <thead>
-                                <tr>
-                                    <th>ID Evento</th>
-                                    <th>Nome do Evento</th>
-                                    <th>Descrição</th>
-                                    <th>Prioridade</th>
-                                    <th>Status</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabelaEventos">
-                                <!-- Dados serão inseridos via JavaScript -->
-                            </tbody>
-                        </table>
-                        <div class="paginacao">
-                            <a href="#" class="ativo">1</a>
-                            <a href="#">2</a>
-                            <a href="#">3</a>
-                            <span>...</span>
-                            <a href="#">5</a>
+                    <div class="m-icone direita">
+                        <div class="pesquisa">
+                            <input type="text" placeholder="Pesquise aqui" id="searchInput" onkeyup="pesquisarEventos()">
+                           
                         </div>
+                        <a href="#" class="icone-adicionar-header" title="Adicionar Evento" onclick="focarNovoEvento()"></a>
+                    </div>
+                    <h2>Tipo de evento</h2> 
+                </div>
+            </div>
+            <div class="margem container">
+                <div class="bloco margem">
+                    <table class="tabela">
+                        <thead>
+                            <tr>
+                                <th>ID Evento</th>
+                                <th>Nome do Evento detectável</th>
+                                <th>Descrição</th>
+                                <th>Prioridade</th>
+                                <th>Algoritmo</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaEventos">
+                            <!-- Dados serão inseridos via JavaScript -->
+                        </tbody>
+                    </table>
+                    <div class="paginacao">
+                        <a href="#" class="ativo">1</a>
+                        <a href="#">2</a>
+                        <a href="#">3</a>
+                        <span>...</span>
+                        <a href="#">5</a>
                     </div>
                 </div>
-            </section>
-        </main>
+            </div>
+        </section>
+    </main>
 
-        <script>
-            // Dados dos eventos (simulando um banco de dados)
-            let eventos = [
-                {
-                    id: "EVT001",
-                    nome: "Hóspede de Pé",
-                    descricao: "Detecta quando o hóspede está em pé no quarto",
-                    prioridade: "media",
-                    status: "ativo",
-                    acoesAutomaticas: "Notificar equipe de enfermagem",
-                    tempoResposta: 60
-                },
-                {
-                    id: "EVT002",
-                    nome: "Hóspede Caído",
-                    descricao: "Detecta quando o hóspede caiu no quarto",
-                    prioridade: "alta",
-                    status: "ativo",
-                    acoesAutomaticas: "Notificar equipe de enfermagem imediatamente, acionar alarme sonoro",
-                    tempoResposta: 15
-                },
-                {
-                    id: "EVT003",
-                    nome: "Hóspede Agitado",
-                    descricao: "Detecta quando o hóspede está com movimentos agitados",
-                    prioridade: "media",
-                    status: "ativo",
-                    acoesAutomaticas: "Notificar equipe de enfermagem",
-                    tempoResposta: 45
-                },
-                {
-                    id: "EVT004",
-                    nome: "Hóspede Ausente",
-                    descricao: "Detecta quando o hóspede não está no quarto",
-                    prioridade: "baixa",
-                    status: "inativo",
-                    acoesAutomaticas: "Registrar horário de saída",
-                    tempoResposta: 120
-                }
-            ];
+    <script>
+        // Dados dos eventos (simulando um banco de dados)
+        let eventos = [
+            {
+                id: "EVT001",
+                nome: "Hóspede de Pé",
+                descricao: "Detecta quando o hóspede está em pé no quarto",
+                prioridade: "media",
+                status: "Detecção de postura",
+                acoesAutomaticas: "Notificar equipe de enfermagem",
+                tempoResposta: 60
+            },
+            {
+                id: "EVT002",
+                nome: "Hóspede Caído",
+                descricao: "Detecta quando o hóspede caiu no quarto",
+                prioridade: "alta",
+                status: "Detecção de queda",
+                acoesAutomaticas: "Notificar equipe de enfermagem imediatamente, acionar alarme sonoro",
+                tempoResposta: 15
+            },
+            {
+                id: "EVT003",
+                nome: "Hóspede Agitado",
+                descricao: "Detecta quando o hóspede está com movimentos agitados",
+                prioridade: "media",
+                status: "Taxa de movimentação",
+                acoesAutomaticas: "Notificar equipe de enfermagem",
+                tempoResposta: 45
+            },
+            {
+                id: "EVT004",
+                nome: "Hóspede Ausente",
+                descricao: "Detecta quando o hóspede não está no quarto",
+                prioridade: "baixa",
+                status: "Presença/Facial",
+                acoesAutomaticas: "Registrar horário de saída",
+                tempoResposta: 120
+            }
+        ];
 
-            // Função para controlar o menu lateral
-            function abaMenu(aba) {
-                // Primeiro, remova todas as classes ativas dos ícones
-                document.getElementById('Monitoramento').classList.remove('ativo');
-                document.getElementById('Configuracoes').classList.remove('ativo');
-                document.getElementById('Relatorios').classList.remove('ativo');
+        // Função para controlar o menu lateral
+        function abaMenu(aba) {
+            // Primeiro, remova todas as classes ativas dos ícones
+            document.getElementById('Monitoramento').classList.remove('ativo');
+            document.getElementById('Configuracoes').classList.remove('ativo');
+            document.getElementById('Relatorios').classList.remove('ativo');
+          
+            // Em seguida, esconda todos os menus
+            document.getElementById('menuMonitoramento').classList.add('none');
+            document.getElementById('menuConfiguracoes').classList.add('none');
+            document.getElementById('menuRelatorios').classList.add('none');
+          
+            // Por fim, ative o ícone e mostre o menu correspondente
+            document.getElementById(aba).classList.add('ativo');
+            document.getElementById('menu' + aba).classList.remove('none');
+          
+            // Salvar o estado do menu no localStorage
+            localStorage.setItem('menuAtivo', aba);
+        }  
               
-                // Em seguida, esconda todos os menus
-                document.getElementById('menuMonitoramento').classList.add('none');
-                document.getElementById('menuConfiguracoes').classList.add('none');
-                document.getElementById('menuRelatorios').classList.add('none');
-              
-                // Por fim, ative o ícone e mostre o menu correspondente
-                document.getElementById(aba).classList.add('ativo');
-                document.getElementById('menu' + aba).classList.remove('none');
-              
-                // Salvar o estado do menu no localStorage
-                localStorage.setItem('menuAtivo', aba);
-            }  
-                  
-            // Função para renderizar a tabela com edição in-line
-            function renderizarTabela() {
-                const tbody = document.getElementById('tabelaEventos');
-                tbody.innerHTML = '';
+        // Função para renderizar a tabela com edição in-line
+        function renderizarTabela() {
+            const tbody = document.getElementById('tabelaEventos');
+            tbody.innerHTML = '';
 
-                eventos.forEach(evento => {
-                    const tr = document.createElement('tr');
-                    tr.setAttribute('data-id', evento.id);
-                    // Na função renderizarTabela(), modifique a parte dos ícones:
-tr.innerHTML = `
-    <td>${evento.id}</td>
-    <td class="editable" data-field="nome">${evento.nome}</td>
-    <td class="editable" data-field="descricao">${evento.descricao}</td>
+            eventos.forEach(evento => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-id', evento.id);
+                tr.innerHTML = `
+                    <td>${evento.id}</td>
+                    <td class="editable" data-field="nome">${evento.nome}</td>
+                    <td class="editable" data-field="descricao">${evento.descricao}</td>
+                    <td>
+                        <select class="editable-select" data-field="prioridade">
+                            <option value="alta" ${evento.prioridade === 'alta' ? 'selected' : ''}>Alta</option>
+                            <option value="media" ${evento.prioridade === 'media' ? 'selected' : ''}>Média</option>
+                            <option value="baixa" ${evento.prioridade === 'baixa' ? 'selected' : ''}>Baixa</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="editable-select" data-field="status">
+                            <option value="Detecção de postura" ${evento.status === 'Detecção de postura' ? 'selected' : ''}>Detecção de postura</option>
+                            <option value="Detecção de queda" ${evento.status === 'Detecção de queda' ? 'selected' : ''}>Detecção de queda</option>
+                            <option value="Taxa de movimentação" ${evento.status === 'Taxa de movimentação' ? 'selected' : ''}>Taxa de movimentação</option>
+                            <option value="Presença/Facial" ${evento.status === 'Presença/Facial' ? 'selected' : ''}>Presença/Facial</option>
+                        </select>
+                    </td>
+                    <td class="acoes">
+                        <a href="#" class="icone-excluir" onclick="excluirEvento('${evento.id}')">🗑️</a>
+                    </td>
+                `;
 
-    <td>
-        <select class="editable-select" data-field="prioridade">
-            <option value="alta" ${evento.prioridade === 'alta' ? 'selected' : ''}>Alta</option>
-            <option value="media" ${evento.prioridade === 'media' ? 'selected' : ''}>Média</option>
-            <option value="baixa" ${evento.prioridade === 'baixa' ? 'selected' : ''}>Baixa</option>
-        </select>
-    </td>
-    <td>
-        <select class="editable-select" data-field="status">
-            <option value="ativo" ${evento.status === 'ativo' ? 'selected' : ''}>Ativo</option>
-            <option value="inativo" ${evento.status === 'inativo' ? 'selected' : ''}>Inativo</option>
-        </select>
-    </td>
-    <td class="acoes">
-        <a href="#" class="icone-salvar" onclick="salvarLinha('${evento.id}')">💾</a>
-        <a href="#" class="icone-excluir" onclick="excluirEvento('${evento.id}')">🗑️</a>
-    </td>
-`;   
+                // Adicionar evento de clique na linha
+                tr.addEventListener('click', function() {
+                    visualizarEvento(evento.id);
+                });
 
-                    tbody.appendChild(tr);
-                    
-                    // Adicionar eventos para campos editáveis
-                    const editableCells = tr.querySelectorAll('.editable');
-                    editableCells.forEach(cell => {
-                        cell.addEventListener('click', function() {
-                            const field = this.getAttribute('data-field');
-                            const value = evento[field];
-                            this.innerHTML = `<input type="text" value="${value}" class="edit-input" data-original="${value}">`;
-                            const input = this.querySelector('input');
-                            input.focus();
-                            
-                            // Salvar ao pressionar Enter
-                            input.addEventListener('keydown', function(e) {
-                                if (e.key === 'Enter') {
-                                    const newValue = this.value;
-                                    cell.innerHTML = newValue;
-                                    evento[field] = newValue;
-                                } else if (e.key === 'Escape') {
-                                    cell.innerHTML = this.getAttribute('data-original');
-                                }
-                            });
-                            
-                            // Salvar ao perder o foco
-                            input.addEventListener('blur', function() {
+                tbody.appendChild(tr);
+                
+                // Adicionar eventos para campos editáveis
+                const editableCells = tr.querySelectorAll('.editable');
+                editableCells.forEach(cell => {
+                    cell.addEventListener('click', function() {
+                        const field = this.getAttribute('data-field');
+                        const value = evento[field];
+                        this.innerHTML = `<input type="text" value="${value}" class="edit-input" data-original="${value}">`;
+                        const input = this.querySelector('input');
+                        input.focus();
+                        
+                        // Salvar ao pressionar Enter
+                        input.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
                                 const newValue = this.value;
                                 cell.innerHTML = newValue;
                                 evento[field] = newValue;
-                            });
-                        });
-                    });
-                    
-                    // Adicionar eventos para selects editáveis
-                    const editableSelects = tr.querySelectorAll('.editable-select');
-                    editableSelects.forEach(select => {
-                        select.addEventListener('change', function() {
-                            const field = this.getAttribute('data-field');
-                            evento[field] = this.value;
-                            
-                            // Atualizar a aparência se for o campo de prioridade
-                            if (field === 'prioridade') {
-                                this.className = `editable-select prioridade-${this.value}`;
+                            } else if (e.key === 'Escape') {
+                                cell.innerHTML = this.getAttribute('data-original');
                             }
                         });
+                        
+                        // Salvar ao perder o foco
+                        input.addEventListener('blur', function() {
+                            const newValue = this.value;
+                            cell.innerHTML = newValue;
+                            evento[field] = newValue;
+                        });
                     });
                 });
                 
-                // Adicionar linha para novo evento
-                const trNovo = document.createElement('tr');
-                trNovo.className = 'nova-linha';
-                trNovo.innerHTML = `
-                    <td><input type="text" placeholder="ID do Evento" id="novoId"></td>
-                    <td><input type="text" placeholder="Nome do Evento" id="novoNome"></td>
-                    <td><input type="text" placeholder="Descrição" id="novoDescricao"></td>
+                // Adicionar eventos para selects editáveis
+                const editableSelects = tr.querySelectorAll('.editable-select');
+                editableSelects.forEach(select => {
+                    select.addEventListener('change', function() {
+                        const field = this.getAttribute('data-field');
+                        evento[field] = this.value;
+                    });
+                });
+            });
+        }
+
+        // Função para visualizar detalhes do evento
+        function visualizarEvento(id) {
+            const evento = eventos.find(e => e.id === id);
+            if (!evento) return;
+
+            // Exibir detalhes em um alerta
+            alert(`Detalhes do Evento:
+ID: ${evento.id}
+Nome: ${evento.nome}
+Descrição: ${evento.descricao}
+Prioridade: ${evento.prioridade}
+Status: ${evento.status}
+Ações Automáticas: ${evento.acoesAutomaticas}
+Tempo de Resposta: ${evento.tempoResposta} segundos`);
+        }
+
+        // Função para pesquisar eventos
+        function pesquisarEventos() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Filtrar eventos e renderizar novamente
+            const eventosFiltrados = eventos.filter(evento => 
+                evento.id.toLowerCase().includes(searchTerm) ||
+                evento.nome.toLowerCase().includes(searchTerm) ||
+                evento.descricao.toLowerCase().includes(searchTerm)
+            );
+            
+            // Renderizar apenas os eventos filtrados
+            renderizarTabelaFiltrada(eventosFiltrados);
+        }
+        
+        // Função para renderizar tabela filtrada
+        function renderizarTabelaFiltrada(eventosFiltrados) {
+            const tbody = document.getElementById('tabelaEventos');
+            tbody.innerHTML = '';
+            
+            eventosFiltrados.forEach(evento => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-id', evento.id);
+                tr.innerHTML = `
+                    <td>${evento.id}</td>
+                    <td class="editable" data-field="nome">${evento.nome}</td>
+                    <td class="editable" data-field="descricao">${evento.descricao}</td>
                     <td>
-                        <select id="novoTipo">
-                            <option value="">Selecione</option>
-                            <option value="de_pe">Hóspede de Pé</option>
-                            <option value="assentado">Hóspede Assentado</option>
-                            <option value="agitado">Hóspede Agitado</option>
-                            <option value="caido">Hóspede Caído</option>
-                            <option value="ausente">Hóspede Ausente</option>
+                        <select class="editable-select" data-field="prioridade">
+                            <option value="alta" ${evento.prioridade === 'alta' ? 'selected' : ''}>Alta</option>
+                            <option value="media" ${evento.prioridade === 'media' ? 'selected' : ''}>Média</option>
+                            <option value="baixa" ${evento.prioridade === 'baixa' ? 'selected' : ''}>Baixa</option>
                         </select>
                     </td>
                     <td>
-                        <select id="novoPrioridade">
-                            <option value="">Selecione</option>
-                            <option value="alta">Alta</option>
-                            <option value="media">Média</option>
-                            <option value="baixa">Baixa</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select id="novoStatus">
-                            <option value="ativo">Ativo</option>
-                            <option value="inativo">Inativo</option>
+                        <select class="editable-select" data-field="status">
+                            <option value="Detecção de postura" ${evento.status === 'Detecção de postura' ? 'selected' : ''}>Detecção de postura</option>
+                            <option value="Detecção de queda" ${evento.status === 'Detecção de queda' ? 'selected' : ''}>Detecção de queda</option>
+                            <option value="Taxa de movimentação" ${evento.status === 'Taxa de movimentação' ? 'selected' : ''}>Taxa de movimentação</option>
+                            <option value="Presença/Facial" ${evento.status === 'Presença/Facial' ? 'selected' : ''}>Presença/Facial</option>
                         </select>
                     </td>
                     <td class="acoes">
-                        <a href="#" class="icone-adicionar" onclick="adicionarNovoEvento()">➕</a>
+                        <a href="#" class="icone-salvar" onclick="salvarLinha('${evento.id}')">💾</a>
+                        <a href="#" class="icone-excluir" onclick="excluirEvento('${evento.id}')">🗑️</a>
                     </td>
                 `;
-                tbody.appendChild(trNovo);
-            }
-            
-            function formatarTipoEvento(tipo) {
-                const tipos = {
-                    'de_pe': 'Hóspede de Pé',
-                    'assentado': 'Hóspede Assentado',
-                    'agitado': 'Hóspede Agitado',
-                    'caido': 'Hóspede Caído',
-                    'ausente': 'Hóspede Ausente'
-                };
-                return tipos[tipo] || tipo;
-            }
-            
-            function formatarPrioridade(prioridade) {
-                const prioridades = {
-                    'alta': 'Alta',
-                    'media': 'Média',
-                    'baixa': 'Baixa'
-                };
-                return prioridades[prioridade] || prioridade;
-            }
-
-            // Função para pesquisar eventos
-            function pesquisarEventos() {
-                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                tbody.appendChild(tr);
                 
-                // Filtrar eventos e renderizar novamente
-                const eventosFiltrados = eventos.filter(evento => 
-                    evento.id.toLowerCase().includes(searchTerm) ||
-                    evento.nome.toLowerCase().includes(searchTerm) ||
-                    evento.descricao.toLowerCase().includes(searchTerm) ||
-                    formatarTipoEvento(evento.tipo).toLowerCase().includes(searchTerm)
-                );
-                
-                // Renderizar apenas os eventos filtrados
-                renderizarTabelaFiltrada(eventosFiltrados);
-            }
-            
-            // Função para renderizar tabela filtrada
-            function renderizarTabelaFiltrada(eventosFiltrados) {
-                const tbody = document.getElementById('tabelaEventos');
-                tbody.innerHTML = '';
-                
-                eventosFiltrados.forEach(evento => {
-                    const tr = document.createElement('tr');
-                    tr.setAttribute('data-id', evento.id);
-                    // Na função renderizarTabelaFiltrada(), modifique a parte dos ícones da mesma forma:
-tr.innerHTML = `
-    <td>${evento.id}</td>
-    <td class="editable" data-field="nome">${evento.nome}</td>
-    <td class="editable" data-field="descricao">${evento.descricao}</td>
-    <td>
-        <select class="editable-select" data-field="tipo">
-            <option value="de_pe" ${evento.tipo === 'de_pe' ? 'selected' : ''}>Hóspede de Pé</option>
-            <option value="assentado" ${evento.tipo === 'assentado' ? 'selected' : ''}>Hóspede Assentado</option>
-            <option value="agitado" ${evento.tipo === 'agitado' ? 'selected' : ''}>Hóspede Agitado</option>
-            <option value="caido" ${evento.tipo === 'caido' ? 'selected' : ''}>Hóspede Caído</option>
-            <option value="ausente" ${evento.tipo === 'ausente' ? 'selected' : ''}>Hóspede Ausente</option>
-        </select>
-    </td>
-    <td>
-        <select class="editable-select" data-field="prioridade">
-            <option value="alta" ${evento.prioridade === 'alta' ? 'selected' : ''}>Alta</option>
-            <option value="media" ${evento.prioridade === 'media' ? 'selected' : ''}>Média</option>
-            <option value="baixa" ${evento.prioridade === 'baixa' ? 'selected' : ''}>Baixa</option>
-        </select>
-    </td>
-    <td>
-        <select class="editable-select" data-field="status">
-            <option value="ativo" ${evento.status === 'ativo' ? 'selected' : ''}>Ativo</option>
-            <option value="inativo" ${evento.status === 'inativo' ? 'selected' : ''}>Inativo</option>
-        </select>
-    </td>
-    <td class="acoes">
-        <a href="#" class="icone-salvar" onclick="salvarLinha('${evento.id}')">💾</a>
-        <a href="#" class="icone-excluir" onclick="excluirEvento('${evento.id}')">🗑️</a>
-    </td>
-`;
-                    tbody.appendChild(tr);
-                    
-                    // Adicionar eventos para campos editáveis
-                    const editableCells = tr.querySelectorAll('.editable');
-                    editableCells.forEach(cell => {
-                        cell.addEventListener('click', function() {
-                            const field = this.getAttribute('data-field');
-                            const value = evento[field];
-                            this.innerHTML = `<input type="text" value="${value}" class="edit-input" data-original="${value}">`;
-                            const input = this.querySelector('input');
-                            input.focus();
-                            
-                            // Salvar ao pressionar Enter
-                            input.addEventListener('keydown', function(e) {
-                                if (e.key === 'Enter') {
-                                    const newValue = this.value;
-                                    cell.innerHTML = newValue;
-                                    evento[field] = newValue;
-                                } else if (e.key === 'Escape') {
-                                    cell.innerHTML = this.getAttribute('data-original');
-                                }
-                            });
-                            
-                            // Salvar ao perder o foco
-                            input.addEventListener('blur', function() {
+                // Adicionar eventos para campos editáveis
+                const editableCells = tr.querySelectorAll('.editable');
+                editableCells.forEach(cell => {
+                    cell.addEventListener('click', function() {
+                        const field = this.getAttribute('data-field');
+                        const value = evento[field];
+                        this.innerHTML = `<input type="text" value="${value}" class="edit-input" data-original="${value}">`;
+                        const input = this.querySelector('input');
+                        input.focus();
+                        
+                        // Salvar ao pressionar Enter
+                        input.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
                                 const newValue = this.value;
                                 cell.innerHTML = newValue;
                                 evento[field] = newValue;
-                            });
+                            } else if (e.key === 'Escape') {
+                                cell.innerHTML = this.getAttribute('data-original');
+                            }
                         });
-                    });
-                    
-                    // Adicionar eventos para selects editáveis
-                    const editableSelects = tr.querySelectorAll('.editable-select');
-                    editableSelects.forEach(select => {
-                        select.addEventListener('change', function() {
-                            const field = this.getAttribute('data-field');
-                            evento[field] = this.value;
+                        
+                        // Salvar ao perder o foco
+                        input.addEventListener('blur', function() {
+                            const newValue = this.value;
+                            cell.innerHTML = newValue;
+                            evento[field] = newValue;
                         });
                     });
                 });
                 
-                // Adicionar linha para novo evento
-                const trNovo = document.createElement('tr');
-                trNovo.className = 'nova-linha';
-                trNovo.innerHTML = `
-                    <td><input type="text" placeholder="ID do Evento" id="novoId"></td>
-                    <td><input type="text" placeholder="Nome do Evento" id="novoNome"></td>
-                    <td><input type="text" placeholder="Descrição" id="novoDescricao"></td>
-                    <td>
-                        <select id="novoTipo">
-                            <option value="">Selecione</option>
-                            <option value="de_pe">Hóspede de Pé</option>
-                            <option value="assentado">Hóspede Assentado</option>
-                            <option value="agitado">Hóspede Agitado</option>
-                            <option value="caido">Hóspede Caído</option>
-                            <option value="ausente">Hóspede Ausente</option>
-                            <option value="de_pe">Hóspede de Pé</option>
-                            <option value="assentado">Hóspede Assentado</option>
-                            <option value="agitado">Hóspede Agitado</option>
-                            <option value="caido">Hóspede Caído</option>
-                            <option value="ausente">Hóspede Ausente</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select id="novoPrioridade">
-                            <option value="">Selecione</option>
-                            <option value="alta">Alta</option>
-                            <option value="media">Média</option>
-                            <option value="baixa">Baixa</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select id="novoStatus">
-                            <option value="ativo">Ativo</option>
-                            <option value="inativo">Inativo</option>
-                        </select>
-                    </td>
-                    <td class="acoes">
-                        <a href="#" class="icone-adicionar" onclick="adicionarNovoEvento()">➕</a>
-                    </td>
-                `;
-                tbody.appendChild(trNovo);
-            }
-
-            // Função para salvar uma linha editada
-            function salvarLinha(id) {
-                alert(`Alterações no evento ${id} salvas com sucesso!`);
-                // Aqui você poderia implementar uma chamada AJAX para salvar no servidor
-            }
-
-            // Função para adicionar um novo evento
-            function adicionarNovoEvento() {
-                const novoId = document.getElementById('novoId').value;
-                const novoNome = document.getElementById('novoNome').value;
-                const novoDescricao = document.getElementById('novoDescricao').value;
-                const novoTipo = document.getElementById('novoTipo').value;
-                const novoPrioridade = document.getElementById('novoPrioridade').value;
-                const novoStatus = document.getElementById('novoStatus').value;
-                
-                // Validar campos obrigatórios
-                if (!novoId || !novoNome || !novoDescricao || !novoTipo || !novoPrioridade) {
-                    alert('Preencha todos os campos obrigatórios!');
-                    return;
-                }
-                
-                // Verificar se já existe um evento com o mesmo ID
-                if (eventos.some(e => e.id === novoId)) {
-                    alert('Já existe um evento com este ID!');
-                    return;
-                }
-                
-                // Adicionar novo evento
-                const novoEvento = {
-                    id: novoId,
-                    nome: novoNome,
-                    descricao: novoDescricao,
-                    tipo: novoTipo,
-                    prioridade: novoPrioridade,
-                    status: novoStatus || 'ativo',
-                    acoesAutomaticas: '',
-                    tempoResposta: 30
-                };
-                
-                eventos.push(novoEvento);
-                renderizarTabela();
-                alert('Evento adicionado com sucesso!');
-            }
-
-            // Função para excluir evento
-            function excluirEvento(id) {
-                if (confirm('Deseja realmente excluir este evento?')) {
-                    eventos = eventos.filter(e => e.id !== id);
-                    renderizarTabela();
-                }
-            }
-
-            // Função para focar na linha de novo evento
-            function focarNovoEvento() {
-                document.getElementById('novoId').focus();
-                // Rolar até a parte inferior da tabela
-                const tabela = document.querySelector('.tabela');
-                tabela.scrollTop = tabela.scrollHeight;
-            }
-
-            document.addEventListener('DOMContentLoaded', function() {
-                renderizarTabela();
-              
-                // Recuperar o estado do menu do localStorage
-                const menuAtivo = localStorage.getItem('menuAtivo') || 'Monitoramento'; // 'Monitoramento' é o padrão
-              
-                // Aplicar o estado do menu
-                document.getElementById('Monitoramento').classList.remove('ativo');
-                document.getElementById('Configuracoes').classList.remove('ativo');
-                document.getElementById('Relatorios').classList.remove('ativo');
-              
-                document.getElementById('menuMonitoramento').classList.add('none');
-                document.getElementById('menuConfiguracoes').classList.add('none');
-                document.getElementById('menuRelatorios').classList.add('none');
-              
-                document.getElementById(menuAtivo).classList.add('ativo');
-                document.getElementById('menu' + menuAtivo).classList.remove('none');
+                // Adicionar eventos para selects editáveis
+                const editableSelects = tr.querySelectorAll('.editable-select');
+                editableSelects.forEach(select => {
+                    select.addEventListener('change', function() {
+                        const field = this.getAttribute('data-field');
+                        evento[field] = this.value;
+                    });
+                });
             });
-        </script>
-    </body>
+        }
+
+        // Função para adicionar um novo evento
+        function adicionarNovoEvento() {
+            const novoId = document.getElementById('novoId').value;
+            const novoNome = document.getElementById('novoNome').value;
+            const novoDescricao = document.getElementById('novoDescricao').value;
+            const novoTipo = document.getElementById('novoTipo').value;
+            const novoPrioridade = document.getElementById('novoPrioridade').value;
+            const novoStatus = document.getElementById('novoStatus').value;
+            
+            // Validar campos obrigatórios
+            if (!novoId || !novoNome || !novoDescricao || !novoTipo || !novoPrioridade) {
+                alert('Preencha todos os campos obrigatórios!');
+                return;
+            }
+            
+            // Verificar se já existe um evento com o mesmo ID
+            if (eventos.some(e => e.id === novoId)) {
+                alert('Já existe um evento com este ID!');
+                return;
+            }
+            
+            // Adicionar novo evento
+            const novoEvento = {
+                id: novoId,
+                nome: novoNome,
+                descricao: novoDescricao,
+                tipo: novoTipo,
+                prioridade: novoPrioridade,
+                status: novoStatus || 'ativo',
+                acoesAutomaticas: '',
+                tempoResposta: 30
+            };
+            
+            eventos.push(novoEvento);
+            renderizarTabela();
+            alert('Evento adicionado com sucesso!');
+        }
+
+        // Função para excluir evento
+        function excluirEvento(id) {
+            if (confirm('Deseja realmente excluir este evento?')) {
+                eventos = eventos.filter(e => e.id !== id);
+                renderizarTabela();
+            }
+        }
+
+        // Função para focar na linha de novo evento
+        function focarNovoEvento() {
+            document.getElementById('novoId').focus();
+            // Rolar até a parte inferior da tabela
+            const tabela = document.querySelector('.tabela');
+            tabela.scrollTop = tabela.scrollHeight;
+        }
+
+        // Inicializar a tabela quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            renderizarTabela();
+            
+            // Verificar se há um menu ativo salvo no localStorage
+            const menuAtivo = localStorage.getItem('menuAtivo');
+            if (menuAtivo) {
+                abaMenu(menuAtivo);
+            }
+
+            // Adicionar evento de redimensionamento para ocultar o menu lateral
+            window.addEventListener('resize', function() {
+                if (window.innerWidth < 768) {
+                    document.getElementById('main').classList.add('esconde');
+                } else {
+                    document.getElementById('main').classList.remove('esconde');
+                }
+            });
+
+            // Inicializar o estado do menu com base na largura da tela
+            if (window.innerWidth < 768) {
+                document.getElementById('main').classList.add('esconde');
+            }
+        });
+    </script>
+</body>
 </html>

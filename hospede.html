@@ -1,656 +1,872 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-    <head>
-        <title>SPEC - Sistema de Monitoramento ILPI</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <meta name="description" content="Sistema de Monitoramento ILPI"/>
-        <link href="css/thalamus.css" rel="stylesheet" type="text/css"/>
-        <style>
-            /* Estilos gerais */
-            body {
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 0;
-            }
+<head>
+    <title>SPEC - Sistema de Monitoramento ILPI</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Sistema de Monitoramento ILPI" />
+    <link href="css/thalamus.css" rel="stylesheet" type="text/css" />
+    <style>
+        /* Estilos gerais */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
-            /* Estilos da tabela */
-            .tabela {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 1rem;
-                background-color: #fff;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            }
+        /* Estilos da tabela */
+        .tabela {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
 
-            .tabela thead th {
-                background-color: #f8f9fa;
-                font-weight: 600;
-                text-align: left;
-                padding: 1rem;
-                border-bottom: 2px solid #dee2e6;
-            }
+        .tabela thead th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 2px solid #dee2e6;
+        }
 
-            .tabela td {
-                vertical-align: middle;
-                padding: 0.75rem;
-                border-bottom: 1px solid #dee2e6;
-            }
+        .tabela td {
+            vertical-align: middle;
+            padding: 0.75rem;
+            border-bottom: 1px solid #dee2e6;
+        }
 
-            /* Estilos para chips e contadores */
-            .chip {
-                display: inline-block;
-                padding: 2px 8px;
-                border-radius: 12px;
-                font-size: 0.75rem;
-                margin-left: 8px;
-                font-weight: 500;
-            }
+        /* Estilos para chips e contadores */
+        .chip {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+            font-weight: 500;
+        }
 
-            .bg-ok {
-                background-color: #4CAF50;
-                color: white;
-            }
+        .bg-ok {
+            background-color: #4caf50;
+            color: white;
+        }
 
-            .bg-cinza {
-                background-color: #f0f0f0;
-                color: #333;
-            }
+        .bg-cinza {
+            background-color: #f0f0f0;
+            color: #333;
+        }
 
-            .bg-ausente {
-                background-color: #FFA726;
-                color: white;
-            }
+        .bg-ausente {
+            background-color: #ffa726;
+            color: white;
+        }
 
-            /* Estilos para elementos clicáveis */
-            .clicavel {
-                cursor: pointer;
-                transition: background-color 0.2s;
-            }
+        /* Estilos para elementos clicáveis */
+        .clicavel {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
 
-            .clicavel:hover {
-                background-color: #f5f5f5;
-            }
+        .clicavel:hover {
+            background-color: #f5f5f5;
+        }
 
-            /* Estilos para o menu lateral */
-            aside {
-                width: 250px;
-                background-color: #fff;
-                border-right: 1px solid #eee;
-                height: 100%;
-                position: fixed;
-                left: 0;
-                top: 60px;
-                overflow-y: auto;
-                transition: all 0.3s ease;
-            }
+        /* Estilos para o menu lateral */
+        aside {
+            width: 250px;
+            background-color: #fff;
+            border-right: 1px solid #eee;
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 60px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
 
-            .esconde aside {
-                width: 60px;
-            }
+        .esconde aside {
+            width: 60px;
+        }
 
-            /* Estilos para paginação */
-            .paginacao {
-                display: flex;
-                justify-content: center;
-                gap: 0.5rem;
-                margin-top: 1rem;
-            }
+        /* Estilos para paginação */
+        .paginacao {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
 
-            .paginacao a {
-                padding: 0.5rem 1rem;
-                border: 1px solid #dee2e6;
-                border-radius: 4px;
-                color: #4a6ee0;
-                text-decoration: none;
-                transition: all 0.2s;
-            }
+        .paginacao a {
+            padding: 0.5rem 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            color: #4a6ee0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
 
-            .paginacao a.ativo {
-                background-color: #4a6ee0;
-                color: white;
-                border-color: #4a6ee0;
-            }
+        .paginacao a.ativo {
+            background-color: #4a6ee0;
+            color: white;
+            border-color: #4a6ee0;
+        }
 
-            .paginacao a:hover:not(.ativo) {
-                background-color: #f8f9fa;
-            }
+        .paginacao a:hover:not(.ativo) {
+            background-color: #f8f9fa;
+        }
 
-            /* Estilos para pesquisa */
-            .pesquisa {
-                display: flex;
-                align-items: center;
-                background-color: #f8f9fa;
-                border-radius: 4px;
-                padding: 0.5rem;
-            }
+        /* Estilos para pesquisa */
+        .pesquisa {
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 0.5rem;
+        }
 
-            .pesquisa input {
-                border: none;
-                background: none;
-                padding: 0.5rem;
-                width: 200px;
-                outline: none;
-            }
+        .pesquisa input {
+            border: none;
+            background: none;
+            padding: 0.5rem;
+            width: 200px;
+            outline: none;
+        }
 
-            /* Estilos para ícones */
-            .icone-pesquisa {
-                width: 24px;
-                height: 24px;
-                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234a6ee0"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>');
-                background-repeat: no-repeat;
-                background-position: center;
-            }
+        /* Estilos para ícones */
+        .icone-pesquisa {
+            width: 24px;
+            height: 24px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234a6ee0"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+        }
 
-            .icone-adicionar-header {
-                display: inline-block;
-                width: 32px;
-                height: 32px;
-                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%234a6ee0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>');
-                background-repeat: no-repeat;
-                background-position: center;
-                background-size: 24px 24px;
-                cursor: pointer;
-                border: none;
-                outline: none;
-                transition: background-color 0.3s ease;
-            }
+        .icone-adicionar-header {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%234a6ee0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 24px 24px;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: background-color 0.3s ease;
+        }
 
-            .icone-adicionar-header:hover {
-                background-color: #f0f5ff;
-                border-radius: 4px;
-            }
+        .icone-adicionar-header:hover {
+            background-color: #f0f5ff;
+            border-radius: 4px;
+        }
+
+        /* Estilos para status */
+        .status-ativo {
+            background-color: #4caf50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .status-inativo {
+            background-color: #f44336;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        /* Estilos para formulário */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-primario {
+            background-color: #4a6ee0;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-secundario {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Estilos para ícones de ação */
+        .acoes {
+            white-space: nowrap;
+            text-align: center;
+            min-width: 80px;
+            padding: 0 10px;
+        }
+
+        .icone-salvar,
+        .icone-excluir {
+            display: inline-block;
+            margin: 0 5px;
+            font-size: 18px;
+            text-decoration: none;
+            vertical-align: middle;
+        }
+
+        .acoes a:first-child {
+            margin-left: 8px;
+        }
+
+        .acoes a:last-child {
+            margin-right: 8px;
+        }
+
+        .icone-salvar:hover {
+            color: #4a6ee0;
+            transform: scale(1.2);
+            transition: transform 0.2s;
+        }
+
+        .icone-excluir:hover {
+            color: #f44336;
+            transform: scale(1.2);
+            transition: transform 0.2s;
+        }
+
+        /* Estilos para tags de classe de hóspede */
+        .tag-classe {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .tag-cadeirante {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .tag-acamado {
+            background-color: #9c27b0;
+            color: white;
+        }
+
+        .tag-andador {
+            background-color: #00bcd4;
+            color: white;
+        }
+
+        .tag-bengala {
+            background-color: #009688;
+            color: white;
+        }
+
+        .tag-independente {
+            background-color: #8bc34a;
+            color: white;
+        }
+
+        /* Estilos para tags de condições de saúde */
+        .tag-condicao {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 2px;
+        }
+
+        /* Cores específicas para algumas condições */
+        .tag-acamado {
+            background-color: #ff5722;
+            color: white;
+        }
+
+        .tag-demencia,
+        .tag-alzheimer,
+        .tag-parkinson {
+            background-color: #9c27b0;
+            color: white;
+        }
+
+        .tag-mobilidade_reduzida,
+        .tag-mobilidade_limitada,
+        .tag-auxilio_transferencia {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .tag-independente {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .tag-dependente_total {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .tag-diabetes,
+        .tag-hipertensao,
+        .tag-problemas_cardiacos,
+        .tag-problemas_respiratorios {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .tag-deficiencia_visual {
+            background-color: #607d8b;
+            color: white;
+        }
+
+        .tag-risco_ulcera {
+            background-color: #e91e63;
+            color: white;
+        }
+
+        .tag-usa_andador {
+            background-color: #00bcd4;
+            color: white;
+        }
+
+        .tag-avc_previo {
+            background-color: #673ab7;
+            color: white;
+        }
+
+        /* Correção para o problema de posicionamento e rolagem na modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none; /* Inicialmente escondida */
+            justify-content: center;
+            align-items: flex-start; /* Alinha ao topo em vez de ao centro */
+            z-index: 1000;
+            overflow-y: auto; /* Permite rolagem na overlay */
+            padding: 2rem 0; /* Adiciona espaço acima e abaixo */
             
-            /* Estilos para status */
-            .status-ativo {
-                background-color: #4CAF50;
-                color: white;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 0.8rem;
-            }
-            
-            .status-inativo {
-                background-color: #F44336;
-                color: white;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 0.8rem;
-            }
-            
-            /* Estilos para formulário */
-            .form-group {
-                margin-bottom: 1rem;
-            }
-            
-            .form-group label {
-                display: block;
-                margin-bottom: 0.5rem;
-                font-weight: 500;
-            }
-            
-            .form-group input,
-            .form-group select,
-            .form-group textarea {
-                width: 100%;
-                padding: 0.5rem;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                font-size: 1rem;
-            }
-            
-            .grid-2 {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-            }
-            
-            .btn-primario {
-                background-color: #4a6ee0;
-                color: white;
-                border: none;
-                padding: 0.5rem 1rem;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 1rem;
-            }
-            
-            .btn-secundario {
-                background-color: #f8f9fa;
-                color: #333;
-                border: 1px solid #ddd;
-                padding: 0.5rem 1rem;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 1rem;
-                margin-right: 0.5rem;
-            }
-            
-            /* Estilos para ícones de ação */
-            .acoes {
-                white-space: nowrap;
-                text-align: center;
-                min-width: 80px;
-                padding: 0 10px;
-            }
+        }
 
-            .icone-salvar,
-            .icone-excluir,
-            .icone-adicionar {
-                display: inline-block;
-                margin: 0 5px;
-                font-size: 18px;
-                text-decoration: none;
-                vertical-align: middle;
-            }
+        .modal {
+            position: relative;
+            width: 80%;
+            max-width: 800px;
+    margin: 2rem auto; /* Centraliza a modal */
+            margin: 2rem 0; /* Adiciona margem acima e abaixo */
+        }
 
-            .acoes a:first-child {
-                margin-left: 8px;
-            }
+        .modal-mask {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            overflow-y: visible; /* Permite que o conteúdo flua naturalmente */
+            display: block;
+        }
 
-            .acoes a:last-child {
-                margin-right: 8px;
-            }
+        .jm {
+            padding: 2rem;
+            box-sizing: border-box;
+        }
 
-            .icone-salvar:hover,
-            .icone-adicionar:hover {
-                color: #4a6ee0;
-                transform: scale(1.2);
-                transition: transform 0.2s;
-            }
+        /* Ajuste para garantir que os botões de ação sejam visíveis */
+        .modal-footer {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: flex-end;
+            padding: 1rem 0;
+            border-top: 1px solid #f0f0f0;
+        }
 
-            .icone-excluir:hover {
-                color: #F44336;
-                transform: scale(1.2);
-                transition: transform 0.2s;
-            }
-            
-            /* Estilos para tags de classe de hóspede */
-            .tag-classe {
-                display: inline-block;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 0.8rem;
-            }
-            
-            .tag-cadeirante {
-                background-color: #2196F3;
-                color: white;
-            }
-            
-            .tag-acamado {
-                background-color: #9C27B0;
-                color: white;
-            }
-            
-            .tag-andador {
-                background-color: #00BCD4;
-                color: white;
-            }
-            
-            .tag-bengala {
-                background-color: #009688;
-                color: white;
-            }
-            
-            .tag-independente {
-                background-color: #8BC34A;
-                color: white;
-            }
-            
-            /* Correção para o problema de posicionamento e rolagem na modal */
-            .modal-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                display: none; /* Inicialmente escondida */
-                justify-content: center;
-                align-items: flex-start; /* Alinha ao topo em vez de ao centro */
-                z-index: 1000;
-                overflow-y: auto; /* Permite rolagem na overlay */
-                padding: 2rem 0; /* Adiciona espaço acima e abaixo */
-            }
+        /* Z-index para modais */
+        #modalNovoHospede {
+            z-index: 1000;
+        }
 
-            .modal {
-                position: relative;
-                width: 80%;
-                max-width: 800px;
-                margin: 2rem 0; /* Adiciona margem acima e abaixo */
-            }
+        #modalEditarHospede {
+            z-index: 1000;
+        }
 
-            .modal-mask {
-                background-color: white;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                width: 100%;
-                overflow-y: visible; /* Permite que o conteúdo flua naturalmente */
-                display: block;
-            }
+        /* Estilos para checkbox personalizado */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
 
-            .jm {
-                padding: 2rem;
-                box-sizing: border-box;
-            }
+        .checkbox-container input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
 
-            /* Ajuste para garantir que os botões de ação sejam visíveis */
-            .modal-footer {
-                margin-top: 1rem;
-                display: flex;
-                justify-content: flex-end;
-                padding: 1rem 0;
-                border-top: 1px solid #f0f0f0;
-            }
-            
-            /* Z-index para modais */
-            #modalNovoHospede {
-                z-index: 1000;
-            }
-            
-            #modalEditarHospede {
-                z-index: 1000;
-            }
-            
-            /* Estilos para checkbox personalizado */
-            .checkbox-container {
-                display: flex;
-                align-items: center;
-                margin-bottom: 0.5rem;
-            }
-            
-            .checkbox-container input[type="checkbox"] {
-                width: auto;
-                margin-right: 10px;
-            }
-            
-            .checkbox-container label {
-                margin-bottom: 0;
-                font-weight: normal;
-            }
-            
-            .checkbox-group {
-                margin-bottom: 1rem;
-                border: 1px solid #eee;
-                padding: 1rem;
-                border-radius: 4px;
-                background-color: #f9f9f9;
-            }
-            
-            .checkbox-group-title {
-                font-weight: 500;
-                margin-bottom: 0.5rem;
-                color: #333;
-            }
-            
-            /* Estilos para ícones de tecnologia */
-            .tech-icon {
-                display: inline-block;
-                width: 20px;
-                height: 20px;
-                margin-right: 5px;
-                vertical-align: middle;
-            }
-            
-            .wearable-icon {
-                color: #4a6ee0;
-            }
-            
-            .facial-icon {
-                color: #4CAF50;
-            }
-        </style>
-    </head>
-    <body>
-        <header>
-            <div class="linha">
-                <div class="coluna">
-                    <nav class="jm jm-menu nav-maior none" id="menu">
-                        <div class="separador">
-                            <a href="configuracoes.html">Configurações</a>
-                            <a href="hospedes.html" class="ativo">Gestão de Hóspedes</a>
-                            <a href="monitoramento.html">Monitoramento</a>
-                            <a href="#">Sair</a>
-                        </div>
-                    </nav>
-                    <a href="inicial.html" class="logo logo-menor">Thalamus</a>
-                    <a href="#" class="icone-avancar negrito com-texto" onclick="document.getElementById('menu').classList.toggle('none');this.classList.toggle('ativo');return false">Gestão de Hóspedes</a>
-                </div>
-                <div class="coluna direita">
-                    <a href="#" class="icone-adicionar-header" title="Adicionar Hóspede" onclick="abrirModalNovoHospede()"></a>
-                    <a href="#" class="avatar" onclick="document.getElementById('usuario').classList.toggle('none');this.classList.toggle('ativo');return false" title="Usuário">
-                        <img src="img/avatar.png"/>
-                    </a>
+        .checkbox-container label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+
+        .checkbox-group {
+            margin-bottom: 1rem;
+            border: 1px solid #eee;
+            padding: 1rem;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .checkbox-group-title {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        /* Estilos para ícones de tecnologia */
+        .tech-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .wearable-icon {
+            color: #4a6ee0;
+        }
+
+        .facial-icon {
+            color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="linha">
+            <div class="coluna">
+                <nav class="jm jm-menu nav-maior none" id="menu">
+                    <div class="separador">
+                        <a href="configuracoes.html">Configurações</a>
+                        <a href="hospedes.html" class="ativo">Gestão de Hóspedes</a>
+                        <a href="monitoramento.html">Monitoramento</a>
+                        <a href="#">Sair</a>
+                    </div>
+                </nav>
+                <a href="inicial.html" class="logo logo-menor">Thalamus</a>
+                <a href="#" class="icone-avancar negrito com-texto" onclick="document.getElementById('menu').classList.toggle('none');this.classList.toggle('ativo');return false">Gestão de Hóspedes</a>
+            </div>
+          
+        </div>
+    </header>
+
+    <main id="main">  
+        <aside>
+            <div class="titulo margem efeito">
+                <div class="m-icone"><a href="#" class="icone-menu" title="Menu" onclick="document.getElementById('main').classList.toggle('esconde');return false"></a></div>
+            </div>
+            <div class="separador margem">
+                <div class="m-icone">
+                    <a href="javascript:abaMenu('Monitoramento')" class="icone-compras ativo" title="Monitoramento" id="Monitoramento"></a>
+                    <a href="javascript:abaMenu('Configuracoes')" class="icone-gestao" title="Configurações" id="Configuracoes"></a>
+                    <a href="javascript:abaMenu('Relatorios')" class="icone-alvo" title="Relatórios" id="Relatorios"></a>
                 </div>
             </div>
-        </header>
-
-        <main id="main">  
-            <aside>
-                <div class="titulo margem efeito">
-                    <div class="m-icone"><a href="#" class="icone-menu" title="Menu" onclick="document.getElementById('main').classList.toggle('esconde');return false"></a></div>
-                </div>
-                <div class="separador margem">
-                    <div class="m-icone">
-                        <a href="javascript:abaMenu('Monitoramento')" class="icone-compras" title="Monitoramento" id="Monitoramento"></a>
-                        <a href="javascript:abaMenu('Configuracoes')" class="icone-gestao ativo" title="Configurações" id="Configuracoes"></a>
-                        <a href="javascript:abaMenu('Relatorios')" class="icone-alvo" title="Relatórios" id="Relatorios"></a>
-                    </div>
-                </div>
-                <nav id="menuMonitoramento" class="nav-maior separador">
-                    <a href="painel.html" class="ativo">Monitoramento e alerta</a>
-                </nav>
-                <nav id="menuConfiguracoes" class="nav-maior separador none">
-                    <a href="hospede.html">Hóspede</a>
-                    <a href="cameraQuarto.html">Câmeras e Quartos</a>
-                    <a href="tipo-eventos.html">Tipo de evento</a>
-                    <a href="tipo-alerta.html"  class="ativo">Tipo de Alertas</a>
-                    <a href="config-evento-alertas.html">Configurações de eventos/alertas</a>
-                    <a href="classeHospede.html">Classe de hóspede</a>
-                    <a href="condicoesSaude.html">Condições de saúde</a>
-                    
-                </nav>
-                <nav id="menuRelatorios" class="nav-maior separador none">
-                    <a href="relatorio-eventos.html">Relatório de Eventos</a>
-                    <a href="relatorio-alertas.html">Relatório de Alertas</a>
-                    <a href="estatisticas.html">Estatísticas</a>
-                </nav>
-            </aside>
-            <section>
-                <div class="titulo">
-                    <div class="margem container">
-                        <div class="m-icone direita">
-                            <div class="pesquisa">
-                                <input type="text" placeholder="Pesquise aqui" id="searchInput" onkeyup="pesquisarHospedes()">
-                                <a href="#" class="icone-pesquisa" title="Pesquise"></a>
-                            </div>
-                            <a href="#" class="icone-adicionar-header" title="Adicionar Hóspede" onclick="abrirModalNovoHospede()"></a>
-                        </div>
-                        <h2>Gestão de Hóspedes</h2> 
-                    </div>
-                </div>
+         
+            <nav id="menuMonitoramento" class="nav-maior separador">
+                <a href="painel.html" class="ativo">Monitoramento e alerta</a>
+            </nav>
+            <nav id="menuConfiguracoes" class="nav-maior separador none">
+                <a href="hospede.html" >Hóspede</a>
+                <a href="cameraQuarto.html">Câmeras e Quartos</a>
+                <a href="tipo-eventos.html" >Tipo de evento</a>
+                <a href="tipo-alerta.html">Tipo de Alertas</a>
+                <a href="config-evento-alertas.html">Configurações de eventos/alertas</a>
+                <a href="classeHospede.html">Classe de hóspede</a>
+                <a href="condicoesSaude.html">Condições de saúde</a>
+            </nav>
+            <nav id="menuRelatorios" class="nav-maior separador none">
+                <a href="relatorio-eventos.html">Relatório de Eventos</a>
+                <a href="relatorio-alertas.html">Relatório de Alertas</a>
+                <a href="estatisticas.html">Estatísticas</a>
+            </nav>
+        </aside>
+        <section>
+            <div class="titulo">
                 <div class="margem container">
-                    <div class="bloco margem">
-                        <table class="tabela">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nome do Hóspede</th>
-                                    <th>Sexo</th>
-                                    <th>Data de Nascimento</th>
-                                    <th>Classe de Hóspede</th>
-                                    <th>Tecnologias</th>
-                                    <th>Responsável</th>
-                                    <th>Contato do Responsável</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabelaHospedes">
-                                <!-- Dados serão inseridos via JavaScript -->
-                            </tbody>
-                        </table>
-                        <div class="paginacao">
-                            <a href="#" class="ativo">1</a>
-                            <a href="#">2</a>
-                            <a href="#">3</a>
-                            <span>...</span>
-                            <a href="#">5</a>
+                    <div class="m-icone direita">
+                        <div class="pesquisa">
+                            <input type="text" placeholder="Pesquise aqui" id="searchInput" onkeyup="pesquisarHospedes()">
+                            
                         </div>
+                        <a href="#" class="icone-adicionar-header" title="Adicionar Hóspede" onclick="abrirModalNovoHospede()"></a>
+                    
+                    </div>
+                    <h2>Gestão de Hóspedes</h2> 
+                </div>
+            </div>
+            <div class="margem container">
+                <div class="bloco margem">
+                    <table class="tabela">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome do Hóspede</th>
+                                <th>Sexo</th>
+                                <th>Data de Nascimento</th>
+                                <th>Classe de Hóspede</th>
+                                <th>Condições de Saúde</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaHospedes">
+                            <!-- Dados serão inseridos via JavaScript -->
+                        </tbody>
+                    </table>
+                    <div class="paginacao">
+                        <a href="#" class="ativo">1</a>
+                        <a href="#">2</a>
+                        <a href="#">3</a>
+                        <span>...</span>
+                        <a href="#">5</a>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- Modal para Adicionar Novo Hóspede -->
-            <div class="modal-overlay" id="modalNovoHospede">
-                <div class="modal">
-                    <div class="modal-mask">
-                        <div class="jm">
-                            <div class="modal-header">
-                                <h3>Adicionar Novo Hóspede</h3>
+        <!-- Modal para Adicionar Novo Hóspede -->
+        <div class="modal-overlay" id="modalNovoHospede">
+            <div class="modal">
+                <div class="modal-mask">
+                    <div class="jm">
+                        <div class="modal-header">
+                            <h3>Adicionar Novo Hóspede</h3>
+                        </div>
+                        <form id="formNovoHospede">
+                            <div class="form-group">
+                                <label for="novoNome">Nome do Hóspede*</label>
+                                <input type="text" id="novoNome" required>
                             </div>
-                            <form id="formNovoHospede">
+                            
+                            <div class="grid-2">
                                 <div class="form-group">
-                                    <label for="novoNome">Nome do Hóspede*</label>
-                                    <input type="text" id="novoNome" required>
-                                </div>
-                                
-                                <div class="grid-2">
-                                    <div class="form-group">
-                                        <label for="novoSexo">Sexo*</label>
-                                        <select id="novoSexo" required>
-                                            <option value="">Selecione</option>
-                                            <option value="Masculino">Masculino</option>
-                                            <option value="Feminino">Feminino</option>
-                                            <option value="Outro">Outro</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="novoDataNascimento">Data de Nascimento*</label>
-                                        <input type="date" id="novoDataNascimento" required>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="novoClasseHospede">Classe de Hóspede*</label>
-                                    <select id="novoClasseHospede" required>
+                                    <label for="novoSexo">Sexo*</label>
+                                    <select id="novoSexo" required>
                                         <option value="">Selecione</option>
-                                        <option value="cadeirante">Cadeirante</option>
-                                        <option value="acamado">Acamado</option>
-                                        <option value="andador">Usuário de Andador</option>
-                                        <option value="bengala">Usuário de Bengala</option>
-                                        <option value="independente">Independente</option>
+                                        <option value="Masculino">Masculino</option>
+                                        <option value="Feminino">Feminino</option>
+                                        <option value="Outro">Outro</option>
                                     </select>
                                 </div>
                                 
-                                <div class="checkbox-group">
-                                    <div class="checkbox-group-title">Tecnologias de Monitoramento</div>
-                                    <div class="checkbox-container">
-                                        <input type="checkbox" id="novoUsaWearable">
-                                        <label for="novoUsaWearable">Usará wearable (dispositivo vestível)</label>
-                                    </div>
-                                    <div class="checkbox-container">
-                                        <input type="checkbox" id="novoUsaReconhecimentoFacial">
-                                        <label for="novoUsaReconhecimentoFacial">Fará reconhecimento facial</label>
-                                    </div>
-                                </div>
-                                
                                 <div class="form-group">
-                                    <label for="novoResponsavel">Nome do Responsável</label>
-                                    <input type="text" id="novoResponsavel">
+                                    <label for="novoDataNascimento">Data de Nascimento*</label>
+                                    <input type="date" id="novoDataNascimento" required>
                                 </div>
-                                
-                                <div class="form-group">
-                                    <label for="novoContatoResponsavel">Contato do Responsável</label>
-                                    <input type="text" id="novoContatoResponsavel" placeholder="(00) 00000-0000">
-                                </div>
-                                
-                                <div class="modal-footer">
-                                    <button type="button" class="btn-secundario" onclick="fecharModalNovoHospede()">Cancelar</button>
-                                    <button type="button" class="btn-primario" onclick="salvarNovoHospede()">Salvar</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Modal para Editar Hóspede -->
-            <div class="modal-overlay" id="modalEditarHospede">
-                <div class="modal">
-                    <div class="modal-mask">
-                        <div class="jm">
-                            <div class="modal-header">
-                                <h3>Editar Hóspede</h3>
                             </div>
-                            <form id="formEditarHospede">
-                                <input type="hidden" id="editarHospedeId">
-                                
-                                <div class="form-group">
-                                    <label for="editarNome">Nome do Hóspede*</label>
-                                    <input type="text" id="editarNome" required>
-                                </div>
-                                
-                                <div class="grid-2">
-                                    <div class="form-group">
-                                        <label for="editarSexo">Sexo*</label>
-                                        <select id="editarSexo" required>
-                                            <option value="Masculino">Masculino</option>
-                                            <option value="Feminino">Feminino</option>
-                                            <option value="Outro">Outro</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="editarDataNascimento">Data de Nascimento*</label>
-                                        <input type="date" id="editarDataNascimento" required>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="editarClasseHospede">Classe de Hóspede*</label>
-                                    <select id="editarClasseHospede" required>
-                                        <option value="cadeirante">Cadeirante</option>
-                                        <option value="acamado">Acamado</option>
-                                        <option value="andador">Usuário de Andador</option>
-                                        <option value="bengala">Usuário de Bengala</option>
-                                        <option value="independente">Independente</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="checkbox-group">
-                                    <div class="checkbox-group-title">Tecnologias de Monitoramento</div>
+                            
+                            <div class="form-group">
+                                <label for="novoClasseHospede">Classe de Hóspede*</label>
+                                <select id="novoClasseHospede" required>
+                                    <option value="">Selecione</option>
+                                    <option value="cadeirante">Cadeirante</option>
+                                    <option value="acamado">Acamado</option>
+                                    <option value="andador">Usuário de Andador</option>
+                                    <option value="bengala">Usuário de Bengala</option>
+                                    <option value="independente">Independente</option>
+                                </select>
+                            </div>
+                            
+                            <div class="checkbox-group">
+                                <div class="checkbox-group-title">Condições de Saúde*</div>
+                                <div class="checkbox-grid">
                                     <div class="checkbox-container">
-                                        <input type="checkbox" id="editarUsaWearable">
-                                        <label for="editarUsaWearable">Usará wearable (dispositivo vestível)</label>
+                                        <input type="checkbox" id="novoMobilidadeReduzida" name="novoCondicoesSaude" value="mobilidade_reduzida">
+                                        <label for="novoMobilidadeReduzida">Mobilidade reduzida</label>
                                     </div>
                                     <div class="checkbox-container">
-                                        <input type="checkbox" id="editarUsaReconhecimentoFacial">
-                                        <label for="editarUsaReconhecimentoFacial">Fará reconhecimento facial</label>
+                                        <input type="checkbox" id="novoAuxilioTransferencia" name="novoCondicoesSaude" value="auxilio_transferencia">
+                                        <label for="novoAuxilioTransferencia">Necessita auxílio para transferência</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoAcamado" name="novoCondicoesSaude" value="acamado">
+                                        <label for="novoAcamado">Acamado</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoMobilidadeLimitada" name="novoCondicoesSaude" value="mobilidade_limitada">
+                                        <label for="novoMobilidadeLimitada">Mobilidade limitada de membros</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoRiscoUlcera" name="novoCondicoesSaude" value="risco_ulcera">
+                                        <label for="novoRiscoUlcera">Risco de úlcera de pressão</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoUsaAndador" name="novoCondicoesSaude" value="usa_andador">
+                                        <label for="novoUsaAndador">Usa andador</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoIndependente" name="novoCondicoesSaude" value="independente">
+                                        <label for="novoIndependente">Independente</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoDependenteTotal" name="novoCondicoesSaude" value="dependente_total">
+                                        <label for="novoDependenteTotal">Dependente total</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoDemencia" name="novoCondicoesSaude" value="demencia">
+                                        <label for="novoDemencia">Demência</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoAlzheimer" name="novoCondicoesSaude" value="alzheimer">
+                                        <label for="novoAlzheimer">Alzheimer</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoParkinson" name="novoCondicoesSaude" value="parkinson">
+                                        <label for="novoParkinson">Parkinson</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoAvcPrevio" name="novoCondicoesSaude" value="avc_previo">
+                                        <label for="novoAvcPrevio">AVC prévio</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoDiabetes" name="novoCondicoesSaude" value="diabetes">
+                                        <label for="novoDiabetes">Diabetes</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoHipertensao" name="novoCondicoesSaude" value="hipertensao">
+                                        <label for="novoHipertensao">Hipertensão</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoProblemasCardiacos" name="novoCondicoesSaude" value="problemas_cardiacos">
+                                        <label for="novoProblemasCardiacos">Problemas cardíacos</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoProblemasRespiratorios" name="novoCondicoesSaude" value="problemas_respiratorios">
+                                        <label for="novoProblemasRespiratorios">Problemas respiratórios</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="novoDeficienciaVisual" name="novoCondicoesSaude" value="deficiencia_visual">
+                                        <label for="novoDeficienciaVisual">Deficiência visual</label>
                                     </div>
                                 </div>
-                                
-                                <div class="form-group">
-                                    <label for="editarResponsavel">Nome do Responsável</label>
-                                    <input type="text" id="editarResponsavel">
+                            </div>
+
+                            <div class="checkbox-group">
+                                <div class="checkbox-group-title">Tecnologias de Monitoramento</div>
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="novoUsaWearable">
+                                    <label for="novoUsaWearable">Usará wearable (dispositivo vestível)</label>
                                 </div>
-                                
-                                <div class="form-group">
-                                    <label for="editarContatoResponsavel">Contato do Responsável</label>
-                                    <input type="text" id="editarContatoResponsavel" placeholder="(00) 00000-0000">
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="novoUsaReconhecimentoFacial">
+                                    <label for="novoUsaReconhecimentoFacial">Fará reconhecimento facial</label>
                                 </div>
-                                
-                                <div class="modal-footer">
-                                    <button type="button" class="btn-secundario" onclick="fecharModalEditarHospede()">Cancelar</button>
-                                    <button type="button" class="btn-primario" onclick="salvarHospedeEditado()">Salvar</button>
-                                </div>
-                            </form>
-                        </div>
+                            </div>
+
+                            <!-- Seção de Alertas -->
+                     
+                            
+                            <div class="form-group">
+                                <label for="novoResponsavel">Nome do Responsável</label>
+                                <input type="text" id="novoResponsavel">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="novoContatoResponsavel">Contato do Responsável</label>
+                                <input type="text" id="novoContatoResponsavel" placeholder="(00) 00000-0000">
+                            </div>
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn-secundario" onclick="fecharModalNovoHospede()">Cancelar</button>
+                                <button type="button" class="btn-primario" onclick="salvarNovoHospede()">Salvar</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
+        
+        <!-- Modal para Editar Hóspede -->
+        <div class="modal-overlay" id="modalEditarHospede">
+            <div class="modal">
+                <div class="modal-mask">
+                    <div class="jm">
+                        <div class="modal-header">
+                            <h3>Editar Hóspede</h3>
+                        </div>
+                        <form id="formEditarHospede">
+                            <input type="hidden" id="editarHospedeId">
+                            
+                            <div class="form-group">
+                                <label for="editarNome">Nome do Hóspede*</label>
+                                <input type="text" id="editarNome" required>
+                            </div>
+                            
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label for="editarSexo">Sexo*</label>
+                                    <select id="editarSexo" required>
+                                        <option value="Masculino">Masculino</option>
+                                        <option value="Feminino">Feminino</option>
+                                        <option value="Outro">Outro</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="editarDataNascimento">Data de Nascimento*</label>
+                                    <input type="date" id="editarDataNascimento" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editarClasseHospede">Classe de Hóspede*</label>
+                                <select id="editarClasseHospede" required>
+                                    <option value="cadeirante">Cadeirante</option>
+                                    <option value="acamado">Acamado</option>
+                                    <option value="andador">Usuário de Andador</option>
+                                    <option value="bengala">Usuário de Bengala</option>
+                                    <option value="independente">Independente</option>
+                                </select>
+                            </div>
+                            
+                            <div class="checkbox-group">
+                                <div class="checkbox-group-title">Condições de Saúde*</div>
+                                <div class="checkbox-grid">
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarMobilidadeReduzida" name="editarCondicoesSaude" value="mobilidade_reduzida">
+                                        <label for="editarMobilidadeReduzida">Mobilidade reduzida</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarAuxilioTransferencia" name="editarCondicoesSaude" value="auxilio_transferencia">
+                                        <label for="editarAuxilioTransferencia">Necessita auxílio para transferência</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarAcamado" name="editarCondicoesSaude" value="acamado">
+                                        <label for="editarAcamado">Acamado</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarMobilidadeLimitada" name="editarCondicoesSaude" value="mobilidade_limitada">
+                                        <label for="editarMobilidadeLimitada">Mobilidade limitada de membros</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarRiscoUlcera" name="editarCondicoesSaude" value="risco_ulcera">
+                                        <label for="editarRiscoUlcera">Risco de úlcera de pressão</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarUsaAndador" name="editarCondicoesSaude" value="usa_andador">
+                                        <label for="editarUsaAndador">Usa andador</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarIndependente" name="editarCondicoesSaude" value="independente">
+                                        <label for="editarIndependente">Independente</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarDependenteTotal" name="editarCondicoesSaude" value="dependente_total">
+                                        <label for="editarDependenteTotal">Dependente total</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarDemencia" name="editarCondicoesSaude" value="demencia">
+                                        <label for="editarDemencia">Demência</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarAlzheimer" name="editarCondicoesSaude" value="alzheimer">
+                                        <label for="editarAlzheimer">Alzheimer</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarParkinson" name="editarCondicoesSaude" value="parkinson">
+                                        <label for="editarParkinson">Parkinson</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarAvcPrevio" name="editarCondicoesSaude" value="avc_previo">
+                                        <label for="editarAvcPrevio">AVC prévio</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarDiabetes" name="editarCondicoesSaude" value="diabetes">
+                                        <label for="editarDiabetes">Diabetes</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarHipertensao" name="editarCondicoesSaude" value="hipertensao">
+                                        <label for="editarHipertensao">Hipertensão</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarProblemasCardiacos" name="editarCondicoesSaude" value="problemas_cardiacos">
+                                        <label for="editarProblemasCardiacos">Problemas cardíacos</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarProblemasRespiratorios" name="editarCondicoesSaude" value="problemas_respiratorios">
+                                        <label for="editarProblemasRespiratorios">Problemas respiratórios</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="editarDeficienciaVisual" name="editarCondicoesSaude" value="deficiencia_visual">
+                                        <label for="editarDeficienciaVisual">Deficiência visual</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="checkbox-group">
+                                <div class="checkbox-group-title">Tecnologias de Monitoramento</div>
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="editarUsaWearable">
+                                    <label for="editarUsaWearable">Usará wearable (dispositivo vestível)</label>
+                                </div>
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="editarUsaReconhecimentoFacial">
+                                    <label for="editarUsaReconhecimentoFacial">Fará reconhecimento facial</label>
+                                </div>
+                            </div>
+
+                            <!-- Seção de Alertas para Edição -->
+
+                            
+                            <div class="form-group">
+                                <label for="editarResponsavel">Nome do Responsável</label>
+                                <input type="text" id="editarResponsavel">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editarContatoResponsavel">Contato do Responsável</label>
+                                <input type="text" id="editarContatoResponsavel" placeholder="(00) 00000-0000">
+                            </div>
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn-secundario" onclick="fecharModalEditarHospede()">Cancelar</button>
+                                <button type="button" class="btn-primario" onclick="salvarHospedeEditado()">Salvar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <script>
             // Dados dos hóspedes (simulando um banco de dados)
@@ -661,10 +877,23 @@
                     sexo: "Feminino",
                     dataNascimento: "1945-05-15",
                     classeHospede: "cadeirante",
+                    condicoesSaude: ["mobilidade_reduzida", "diabetes", "hipertensao"],
                     usaWearable: true,
                     usaReconhecimentoFacial: false,
                     responsavel: "Carlos Silva",
-                    contatoResponsavel: "(11) 98765-4321"
+                    contatoResponsavel: "(11) 98765-4321",
+                    alertas: [
+                        {
+                            tipo: "queda",
+                            destinatario: "Carlos Silva",
+                            contatoDestinatario: "(11) 98765-4321"
+                        },
+                        {
+                            tipo: "saida_nao_autorizada",
+                            destinatario: "Maria Silva",
+                            contatoDestinatario: "(11) 97654-3210"
+                        }
+                    ]
                 },
                 {
                     id: "H002",
@@ -672,10 +901,18 @@
                     sexo: "Masculino",
                     dataNascimento: "1938-10-22",
                     classeHospede: "andador",
+                    condicoesSaude: ["usa_andador", "problemas_cardiacos"],
                     usaWearable: true,
                     usaReconhecimentoFacial: true,
                     responsavel: "Maria Oliveira",
-                    contatoResponsavel: "(11) 97654-3210"
+                    contatoResponsavel: "(11) 97654-3210",
+                    alertas: [
+                        {
+                            tipo: "tempo_banheiro",
+                            destinatario: "Maria Oliveira",
+                            contatoDestinatario: "(11) 97654-3210"
+                        }
+                    ]
                 },
                 {
                     id: "H003",
@@ -683,10 +920,23 @@
                     sexo: "Feminino",
                     dataNascimento: "1942-03-08",
                     classeHospede: "acamado",
+                    condicoesSaude: ["acamado", "risco_ulcera", "dependente_total"],
                     usaWearable: false,
                     usaReconhecimentoFacial: true,
                     responsavel: "João Santos",
-                    contatoResponsavel: "(11) 96543-2109"
+                    contatoResponsavel: "(11) 96543-2109",
+                    alertas: [
+                        {
+                            tipo: "ausencia_leito",
+                            destinatario: "João Santos",
+                            contatoDestinatario: "(11) 96543-2109"
+                        },
+                        {
+                            tipo: "agitacao",
+                            destinatario: "Enfermaria",
+                            contatoDestinatario: "(11) 3333-4444"
+                        }
+                    ]
                 },
                 {
                     id: "H004",
@@ -694,10 +944,18 @@
                     sexo: "Masculino",
                     dataNascimento: "1950-07-30",
                     classeHospede: "bengala",
+                    condicoesSaude: ["parkinson", "mobilidade_limitada"],
                     usaWearable: true,
                     usaReconhecimentoFacial: false,
                     responsavel: "Luiza Ferreira",
-                    contatoResponsavel: "(11) 95432-1098"
+                    contatoResponsavel: "(11) 95432-1098",
+                    alertas: [
+                        {
+                            tipo: "queda",
+                            destinatario: "Luiza Ferreira",
+                            contatoDestinatario: "(11) 95432-1098"
+                        }
+                    ]
                 },
                 {
                     id: "H005",
@@ -705,10 +963,18 @@
                     sexo: "Feminino",
                     dataNascimento: "1948-12-10",
                     classeHospede: "independente",
+                    condicoesSaude: ["independente", "hipertensao"],
                     usaWearable: false,
                     usaReconhecimentoFacial: false,
                     responsavel: "Roberto Mendes",
-                    contatoResponsavel: "(11) 94321-0987"
+                    contatoResponsavel: "(11) 94321-0987",
+                    alertas: [
+                        {
+                            tipo: "saida_nao_autorizada",
+                            destinatario: "Roberto Mendes",
+                            contatoDestinatario: "(11) 94321-0987"
+                        }
+                    ]
                 }
             ];
 
@@ -732,6 +998,54 @@
                 localStorage.setItem('menuAtivo', aba);
             }  
                   
+            // Funções auxiliares para obter texto formatado
+            function getClasseHospedeTexto(classe) {
+                const classes = {
+                    'cadeirante': 'Cadeirante',
+                    'acamado': 'Acamado',
+                    'andador': 'Usuário de Andador',
+                    'bengala': 'Usuário de Bengala',
+                    'independente': 'Independente'
+                };
+                return classes[classe] || classe;
+            }
+
+            // Função para obter texto formatado das condições de saúde
+            function getCondicoesSaudeTexto(condicao) {
+                const condicoes = {
+                    'mobilidade_reduzida': 'Mobilidade reduzida',
+                    'auxilio_transferencia': 'Necessita auxílio para transferência',
+                    'acamado': 'Acamado',
+                    'mobilidade_limitada': 'Mobilidade limitada de membros',
+                    'risco_ulcera': 'Risco de úlcera de pressão',
+                    'usa_andador': 'Usa andador',
+                    'independente': 'Independente',
+                    'dependente_total': 'Dependente total',
+                    'demencia': 'Demência',
+                    'alzheimer': 'Alzheimer',
+                    'parkinson': 'Parkinson',
+                    'avc_previo': 'AVC prévio',
+                    'diabetes': 'Diabetes',
+                    'hipertensao': 'Hipertensão',
+                    'problemas_cardiacos': 'Problemas cardíacos',
+                    'problemas_respiratorios': 'Problemas respiratórios',
+                    'deficiencia_visual': 'Deficiência visual'
+                };
+                return condicoes[condicao] || condicao;
+            }
+
+            // Função para obter texto formatado dos tipos de alerta
+            function getTipoAlertaTexto(tipo) {
+                const tipos = {
+                    'queda': 'Queda',
+                    'saida_nao_autorizada': 'Saída não autorizada',
+                    'tempo_banheiro': 'Tempo prolongado no banheiro',
+                    'ausencia_leito': 'Ausência do leito',
+                    'agitacao': 'Agitação'
+                };
+                return tipos[tipo] || tipo;
+            }
+
             // Função para renderizar a tabela de hóspedes
             function renderizarTabela() {
                 console.log("Iniciando renderização da tabela");
@@ -750,7 +1064,7 @@
                 // Verificar se há hóspedes
                 if (hospedes.length === 0) {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = '<td colspan="9" style="text-align: center;">Nenhum hóspede cadastrado</td>';
+                    tr.innerHTML = '<td colspan="7" style="text-align: center;">Nenhum hóspede cadastrado</td>';
                     tbody.appendChild(tr);
                     return;
                 }
@@ -771,16 +1085,153 @@
                         idade--;
                     }
                     
-                    // Criar ícones para tecnologias
-                    let tecnologiasHTML = '';
-                    if (hospede.usaWearable) {
-                        tecnologiasHTML += '<span class="tech-icon wearable-icon" title="Usa wearable">⌚</span>';
+                    // Criar tags para condições de saúde
+                    let condicoesSaudeHTML = '';
+                    if (hospede.condicoesSaude && hospede.condicoesSaude.length > 0) {
+                        condicoesSaudeHTML = '<div class="condicoes-saude-tags">';
+                        hospede.condicoesSaude.forEach(condicao => {
+                            condicoesSaudeHTML += `<span class="tag-condicao tag-${condicao}" title="${getCondicoesSaudeTexto(condicao)}">${getCondicoesSaudeTexto(condicao)}</span>`;
+                        });
+                        condicoesSaudeHTML += '</div>';
+                    } else {
+                        condicoesSaudeHTML = '-';
                     }
-                    if (hospede.usaReconhecimentoFacial) {
-                        tecnologiasHTML += '<span class="tech-icon facial-icon" title="Usa reconhecimento facial">👁️</span>';
+                    tr.innerHTML = `
+                    <td>${hospede.id}</td>
+                    <td>${hospede.nome}</td>
+                    <td>${hospede.sexo}</td>
+                    <td>${dataFormatada} (${idade} anos)</td>
+                    <td><span class="tag-classe tag-${hospede.classeHospede}">${getClasseHospedeTexto(hospede.classeHospede)}</span></td>
+                    <td class="condicoes-saude-cell">${condicoesSaudeHTML}</td>
+                    <td class="acoes">
+                        <a href="javascript:void(0)" class="icone-salvar" onclick="event.stopPropagation(); editarHospede('${hospede.id}')">✏️</a>
+                        <a href="javascript:void(0)" class="icone-excluir" onclick="event.stopPropagation(); excluirHospede('${hospede.id}')">🗑️</a>
+                    </td>
+                `;
+                    
+                    // Adicionar evento de clique na linha
+                    tr.addEventListener('click', function() {
+                        visualizarHospede(hospede.id);
+                    });
+                    
+                    tbody.appendChild(tr);
+                });
+
+                console.log("Tabela renderizada com sucesso");
+            }
+
+            // Função para visualizar detalhes do hóspede
+            function visualizarHospede(id) {
+                const hospede = hospedes.find(h => h.id === id);
+                if (!hospede) return;
+                
+                // Formatar data de nascimento
+                const dataNascimento = new Date(hospede.dataNascimento);
+                const dataFormatada = dataNascimento.toLocaleDateString('pt-BR');
+                
+                // Calcular idade
+                const hoje = new Date();
+                let idade = hoje.getFullYear() - dataNascimento.getFullYear();
+                const m = hoje.getMonth() - dataNascimento.getMonth();
+                if (m < 0 || (m === 0 && hoje.getDate() < dataNascimento.getDate())) {
+                    idade--;
+                }
+                
+                // Criar texto para tecnologias
+                let tecnologias = [];
+                if (hospede.usaWearable) tecnologias.push('Wearable');
+                if (hospede.usaReconhecimentoFacial) tecnologias.push('Reconhecimento Facial');
+                const tecnologiasTexto = tecnologias.length > 0 ? tecnologias.join(' e ') : 'Nenhuma';
+                
+                // Criar texto para condições de saúde
+                const condicoesSaudeTexto = hospede.condicoesSaude.map(condicao => 
+                    getCondicoesSaudeTexto(condicao)
+                ).join(', ');
+                
+                // Criar texto para alertas
+                let alertasTexto = '';
+                if (hospede.alertas && hospede.alertas.length > 0) {
+                    alertasTexto = hospede.alertas.map(alerta => 
+                        `- ${getTipoAlertaTexto(alerta.tipo)}: ${alerta.destinatario} (${alerta.contatoDestinatario})`
+                    ).join('\n');
+                } else {
+                    alertasTexto = 'Nenhum alerta configurado';
+                }
+                
+                // Exibir detalhes em um alerta
+                alert(`Detalhes do Hóspede:
+                
+ID: ${hospede.id}
+Nome: ${hospede.nome}
+Sexo: ${hospede.sexo}
+Data de Nascimento: ${dataFormatada} (${idade} anos)
+Classe: ${getClasseHospedeTexto(hospede.classeHospede)}
+Condições de Saúde: ${condicoesSaudeTexto}
+Tecnologias: ${tecnologiasTexto}
+Responsável: ${hospede.responsavel || 'Não informado'}
+Contato do Responsável: ${hospede.contatoResponsavel || 'Não informado'}
+
+Alertas Configurados:
+${alertasTexto}`);
+            }
+
+            // Função para pesquisar hóspedes
+            function pesquisarHospedes() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                
+                if (!searchTerm) {
+                    renderizarTabela();
+                    return;
+                }
+                
+                const tbody = document.getElementById('tabelaHospedes');
+                tbody.innerHTML = '';
+
+                const resultados = hospedes.filter(hospede => {
+                    // Verificar se o termo de pesquisa está no ID, nome, classe de hóspede, condições de saúde, responsável ou contato
+                    const condicoesSaudeTexto = hospede.condicoesSaude.map(c => getCondicoesSaudeTexto(c).toLowerCase()).join(' ');
+                    
+                    return hospede.id.toLowerCase().includes(searchTerm) ||
+                        hospede.nome.toLowerCase().includes(searchTerm) ||
+                        getClasseHospedeTexto(hospede.classeHospede).toLowerCase().includes(searchTerm) ||
+                        condicoesSaudeTexto.includes(searchTerm) ||
+                        (hospede.responsavel && hospede.responsavel.toLowerCase().includes(searchTerm)) ||
+                        (hospede.contatoResponsavel && hospede.contatoResponsavel.toLowerCase().includes(searchTerm)) ||
+                        hospede.sexo.toLowerCase().includes(searchTerm);
+                });
+                
+                if (resultados.length === 0) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = '<td colspan="7" style="text-align: center;">Nenhum resultado encontrado</td>';
+                    tbody.appendChild(tr);
+                    return;
+                }
+                
+                resultados.forEach(hospede => {
+                    const tr = document.createElement('tr');
+                    
+                    // Formatar data de nascimento
+                    const dataNascimento = new Date(hospede.dataNascimento);
+                    const dataFormatada = dataNascimento.toLocaleDateString('pt-BR');
+                    
+                    // Calcular idade
+                    const hoje = new Date();
+                    let idade = hoje.getFullYear() - dataNascimento.getFullYear();
+                    const m = hoje.getMonth() - dataNascimento.getMonth();
+                    if (m < 0 || (m === 0 && hoje.getDate() < dataNascimento.getDate())) {
+                        idade--;
                     }
-                    if (!hospede.usaWearable && !hospede.usaReconhecimentoFacial) {
-                        tecnologiasHTML = '-';
+                    
+                    // Criar tags para condições de saúde
+                    let condicoesSaudeHTML = '';
+                    if (hospede.condicoesSaude && hospede.condicoesSaude.length > 0) {
+                        condicoesSaudeHTML = '<div class="condicoes-saude-tags">';
+                        hospede.condicoesSaude.forEach(condicao => {
+                            condicoesSaudeHTML += `<span class="tag-condicao tag-${condicao}" title="${getCondicoesSaudeTexto(condicao)}">${getCondicoesSaudeTexto(condicao)}</span>`;
+                        });
+                        condicoesSaudeHTML += '</div>';
+                    } else {
+                        condicoesSaudeHTML = '-';
                     }
                     
                     tr.innerHTML = `
@@ -789,35 +1240,71 @@
                         <td>${hospede.sexo}</td>
                         <td>${dataFormatada} (${idade} anos)</td>
                         <td><span class="tag-classe tag-${hospede.classeHospede}">${getClasseHospedeTexto(hospede.classeHospede)}</span></td>
-                        <td>${tecnologiasHTML}</td>
-                        <td>${hospede.responsavel || '-'}</td>
-                        <td>${hospede.contatoResponsavel || '-'}</td>
+                        <td class="condicoes-saude-cell">${condicoesSaudeHTML}</td>
                         <td class="acoes">
                             <a href="javascript:void(0)" class="icone-salvar" onclick="editarHospede('${hospede.id}')">✏️</a>
                             <a href="javascript:void(0)" class="icone-excluir" onclick="excluirHospede('${hospede.id}')">🗑️</a>
-                            <a href="javascript:void(0)" class="icone-adicionar" onclick="visualizarHospede('${hospede.id}')">👁️</a>
                         </td>
                     `;
+                    
+                    // Adicionar evento de clique na linha
+                    tr.addEventListener('click', function() {
+                        visualizarHospede(hospede.id);
+                    });
+                    
                     tbody.appendChild(tr);
                 });
-
-                console.log("Tabela renderizada com sucesso");
             }
 
-            // Funções auxiliares para obter texto formatado
-            function getClasseHospedeTexto(classe) {
-                const classes = {
-                    'cadeirante': 'Cadeirante',
-                    'acamado': 'Acamado',
-                    'andador': 'Usuário de Andador',
-                    'bengala': 'Usuário de Bengala',
-                    'independente': 'Independente'
-                };
-                return classes[classe] || classe;
-            }
+            // Inicializar a tabela quando a página carregar
+            document.addEventListener('DOMContentLoaded', function() {
+                renderizarTabela();
+                
+                // Verificar se há um menu ativo salvo no localStorage
+                const menuAtivo = localStorage.getItem('menuAtivo');
+                if (menuAtivo) {
+                    abaMenu(menuAtivo);
+                }
+            });
+            function editarHospede(id) {
+    const hospede = hospedes.find(h => h.id === id);
+    if (!hospede) return;
 
-            // Função para abrir modal de novo hóspede
-            function abrirModalNovoHospede() {
+    // Preencher o formulário da modal com os dados do hóspede
+    document.getElementById('editarHospedeId').value = hospede.id;
+    document.getElementById('editarNome').value = hospede.nome;
+    document.getElementById('editarSexo').value = hospede.sexo;
+    document.getElementById('editarDataNascimento').value = hospede.dataNascimento;
+    document.getElementById('editarClasseHospede').value = hospede.classeHospede;
+
+    // Marcar as condições de saúde
+    hospede.condicoesSaude.forEach(condicao => {
+        const checkbox = document.getElementById(`editar${condicao.charAt(0).toUpperCase() + condicao.slice(1)}`);
+        if (checkbox) {
+            checkbox.checked = true;
+        }
+    });
+
+    // Exibir a modal
+    document.getElementById('modalEditarHospede').style.display = 'flex';
+}
+function fecharModalEditarHospede() {
+    document.getElementById('modalEditarHospede').style.display = 'none';
+    // Limpar os campos do formulário
+    document.getElementById('editarHospedeId').value = '';
+    document.getElementById('editarNome').value = '';
+    document.getElementById('editarSexo').value = '';
+    document.getElementById('editarDataNascimento').value = '';
+    document.getElementById('editarClasseHospede').value = '';
+    
+    // Desmarcar as condições de saúde
+    const checkboxes = document.querySelectorAll('#modalEditarHospede input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+}
+      // Função para abrir modal de novo hóspede
+      function abrirModalNovoHospede() {
                 // Limpar formulário
                 document.getElementById('formNovoHospede').reset();
                 
@@ -897,264 +1384,12 @@
                 return `H${nextNum.toString().padStart(3, '0')}`;
             }
 
-            // Função para validar o formato da data
-            function validarData(data) {
-                // Verificar se a data está no formato correto (YYYY-MM-DD)
-                if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
-                    return false;
-                }
-                
-                // Verificar se a data é válida
-                const dataObj = new Date(data);
-                if (isNaN(dataObj.getTime())) {
-                    return false;
-                }
-                
-                return true;
-            }
-
-            // Função para editar hóspede
-            function editarHospede(id) {
-                const hospede = hospedes.find(h => h.id === id);
-                if (!hospede) return;
-                
-                // Preencher formulário
-                document.getElementById('editarHospedeId').value = hospede.id;
-                document.getElementById('editarNome').value = hospede.nome;
-                document.getElementById('editarSexo').value = hospede.sexo;
-                document.getElementById('editarDataNascimento').value = hospede.dataNascimento;
-                document.getElementById('editarClasseHospede').value = hospede.classeHospede;
-                document.getElementById('editarUsaWearable').checked = hospede.usaWearable;
-                document.getElementById('editarUsaReconhecimentoFacial').checked = hospede.usaReconhecimentoFacial;
-                document.getElementById('editarResponsavel').value = hospede.responsavel || '';
-                document.getElementById('editarContatoResponsavel').value = hospede.contatoResponsavel || '';
-                
-                // Exibir modal
-                document.getElementById('modalEditarHospede').style.display = 'flex';
-            }
-
-            // Função para fechar modal de edição
-            function fecharModalEditarHospede() {
-                document.getElementById('modalEditarHospede').style.display = 'none';
-            }
-
-            // Função para salvar hóspede editado
-            function salvarHospedeEditado() {
-                const id = document.getElementById('editarHospedeId').value;
-                const nome = document.getElementById('editarNome').value;
-                const sexo = document.getElementById('editarSexo').value;
-                const dataNascimento = document.getElementById('editarDataNascimento').value;
-                const classeHospede = document.getElementById('editarClasseHospede').value;
-                const usaWearable = document.getElementById('editarUsaWearable').checked;
-                const usaReconhecimentoFacial = document.getElementById('editarUsaReconhecimentoFacial').checked;
-                const responsavel = document.getElementById('editarResponsavel').value;
-                const contatoResponsavel = document.getElementById('editarContatoResponsavel').value;
-                
-                // Validar campos obrigatórios
-                if (!nome || !sexo || !dataNascimento || !classeHospede) {
-                    alert('Por favor, preencha todos os campos obrigatórios!');
-                    return;
-                }
-                
-                // Validar formato da data
-                if (!validarData(dataNascimento)) {
-                    alert('Por favor, informe uma data de nascimento válida!');
-                    return;
-                }
-                
-                // Atualizar hóspede
-                const index = hospedes.findIndex(h => h.id === id);
-                if (index !== -1) {
-                    hospedes[index] = {
-                        id,
-                        nome,
-                        sexo,
-                        dataNascimento,
-                        classeHospede,
-                        usaWearable,
-                        usaReconhecimentoFacial,
-                        responsavel,
-                        contatoResponsavel
-                    };
-                }
-                
-                // Atualizar tabela
-                renderizarTabela();
-                
-                // Fechar modal
-                fecharModalEditarHospede();
-                
-                alert(`Hóspede "${nome}" atualizado com sucesso!`);
-            }
-
-            // Função para excluir hóspede
-            function excluirHospede(id) {
-                const hospede = hospedes.find(h => h.id === id);
-                if (!hospede) return;
-                
-                if (confirm(`Deseja realmente excluir o hóspede "${hospede.nome}"?`)) {
-                    hospedes = hospedes.filter(h => h.id !== id);
-                    renderizarTabela();
-                    alert('Hóspede excluído com sucesso!');
-                }
-            }
-
-            // Função para visualizar detalhes do hóspede
-            function visualizarHospede(id) {
-                const hospede = hospedes.find(h => h.id === id);
-                if (!hospede) return;
-                
-                // Formatar data de nascimento
-                const dataNascimento = new Date(hospede.dataNascimento);
-                const dataFormatada = dataNascimento.toLocaleDateString('pt-BR');
-                
-                // Calcular idade
-                const hoje = new Date();
-                let idade = hoje.getFullYear() - dataNascimento.getFullYear();
-                const m = hoje.getMonth() - dataNascimento.getMonth();
-                if (m < 0 || (m === 0 && hoje.getDate() < dataNascimento.getDate())) {
-                    idade--;
-                }
-                
-                // Criar texto para tecnologias
-                let tecnologias = [];
-                if (hospede.usaWearable) tecnologias.push('Wearable');
-                if (hospede.usaReconhecimentoFacial) tecnologias.push('Reconhecimento Facial');
-                const tecnologiasTexto = tecnologias.length > 0 ? tecnologias.join(' e ') : 'Nenhuma';
-                
-                // Exibir detalhes em um alerta
-                alert(`Detalhes do Hóspede:
-                
-ID: ${hospede.id}
-Nome: ${hospede.nome}
-Sexo: ${hospede.sexo}
-Data de Nascimento: ${dataFormatada} (${idade} anos)
-Classe: ${getClasseHospedeTexto(hospede.classeHospede)}
-Tecnologias: ${tecnologiasTexto}
-Responsável: ${hospede.responsavel || 'Não informado'}
-Contato do Responsável: ${hospede.contatoResponsavel || 'Não informado'}`);
-            }
-
-            // Função para pesquisar hóspedes
-            function pesquisarHospedes() {
-                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-                
-                if (!searchTerm) {
-                    renderizarTabela();
-                    return;
-                }
-                
-                const tbody = document.getElementById('tabelaHospedes');
-                tbody.innerHTML = '';
-
-                const resultados = hospedes.filter(hospede => {
-                    // Verificar se o termo de pesquisa está no ID, nome, classe de hóspede, responsável ou contato
-                    return hospede.id.toLowerCase().includes(searchTerm) ||
-                        hospede.nome.toLowerCase().includes(searchTerm) ||
-                        getClasseHospedeTexto(hospede.classeHospede).toLowerCase().includes(searchTerm) ||
-                        (hospede.responsavel && hospede.responsavel.toLowerCase().includes(searchTerm)) ||
-                        (hospede.contatoResponsavel && hospede.contatoResponsavel.toLowerCase().includes(searchTerm)) ||
-                        hospede.sexo.toLowerCase().includes(searchTerm);
-                });
-                
-                if (resultados.length === 0) {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = '<td colspan="9" style="text-align: center;">Nenhum resultado encontrado</td>';
-                    tbody.appendChild(tr);
-                    return;
-                }
-                
-                resultados.forEach(hospede => {
-                    const tr = document.createElement('tr');
-                    
-                    // Formatar data de nascimento
-                    const dataNascimento = new Date(hospede.dataNascimento);
-                    const dataFormatada = dataNascimento.toLocaleDateString('pt-BR');
-                    
-                    // Calcular idade
-                    const hoje = new Date();
-                    let idade = hoje.getFullYear() - dataNascimento.getFullYear();
-                    const m = hoje.getMonth() - dataNascimento.getMonth();
-                    if (m < 0 || (m === 0 && hoje.getDate() < dataNascimento.getDate())) {
-                        idade--;
-                    }
-                    
-                    // Criar ícones para tecnologias
-                    let tecnologiasHTML = '';
-                    if (hospede.usaWearable) {
-                        tecnologiasHTML += '<span class="tech-icon wearable-icon" title="Usa wearable">⌚</span>';
-                    }
-                    if (hospede.usaReconhecimentoFacial) {
-                        tecnologiasHTML += '<span class="tech-icon facial-icon" title="Usa reconhecimento facial">👁️</span>';
-                    }
-                    if (!hospede.usaWearable && !hospede.usaReconhecimentoFacial) {
-                        tecnologiasHTML = '-';
-                    }
-                    
-                    tr.innerHTML = `
-                        <td>${hospede.id}</td>
-                        <td>${hospede.nome}</td>
-                        <td>${hospede.sexo}</td>
-                        <td>${dataFormatada} (${idade} anos)</td>
-                        <td><span class="tag-classe tag-${hospede.classeHospede}">${getClasseHospedeTexto(hospede.classeHospede)}</span></td>
-                        <td>${tecnologiasHTML}</td>
-                        <td>${hospede.responsavel || '-'}</td>
-                        <td>${hospede.contatoResponsavel || '-'}</td>
-                        <td class="acoes">
-                            <a href="javascript:void(0)" class="icone-salvar" onclick="editarHospede('${hospede.id}')">✏️</a>
-                            <a href="javascript:void(0)" class="icone-excluir" onclick="excluirHospede('${hospede.id}')">🗑️</a>
-                            <a href="javascript:void(0)" class="icone-adicionar" onclick="visualizarHospede('${hospede.id}')">👁️</a>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
-
-            // Inicializar a página
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log("DOM carregado, iniciando aplicação");
-                
-                // Renderizar tabela inicial
-                renderizarTabela();
-                
-                // Recuperar o estado do menu do localStorage
-                const menuAtivo = localStorage.getItem('menuAtivo') || 'Configuracoes';
-                
-                // Aplicar o estado do menu
-                document.getElementById('Monitoramento').classList.remove('ativo');
-                document.getElementById('Configuracoes').classList.remove('ativo');
-                document.getElementById('Relatorios').classList.remove('ativo');
-
-                document.getElementById('menuMonitoramento').classList.add('none');
-                document.getElementById('menuConfiguracoes').classList.add('none');
-                document.getElementById('menuRelatorios').classList.add('none');
-
-                document.getElementById(menuAtivo).classList.add('ativo');
-                document.getElementById('menu' + menuAtivo).classList.remove('none');
-                
-                // Adicionar eventos para fechar modais ao clicar fora
-                document.querySelectorAll('.modal-overlay').forEach(modal => {
-                    modal.addEventListener('click', function(e) {
-                        if (e.target === this) {
-                            this.style.display = 'none';
-                        }
-                    });
-                });
-                
-                console.log("Inicialização concluída");
-            });
-
-            // Verificar se a página foi carregada completamente
-            window.onload = function() {
-                console.log("Página totalmente carregada (window.onload)");
-                
-                // Verificar se a tabela foi renderizada
-                const tbody = document.getElementById('tabelaHospedes');
-                if (tbody && !tbody.innerHTML.trim()) {
-                    console.warn("A tabela está vazia após o carregamento completo, renderizando novamente...");
-                    renderizarTabela();
-                }
-            };
+// Fechar a modal ao clicar fora dela
+document.getElementById('modalEditarHospede').addEventListener('click', function(event) {
+    if (event.target === this) {
+        fecharModalEditarHospede();
+    }
+});
         </script>
     </body>
 </html>
